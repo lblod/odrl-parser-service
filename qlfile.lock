@@ -1,0 +1,20 @@
+("quicklisp" .
+ (:class qlot/source/dist:source-dist
+  :initargs (:distribution "https://beta.quicklisp.org/dist/quicklisp.txt" :%version :latest)
+  :version "2025-06-22"))
+("cl-fuseki" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "madnificent/cl-fuseki" :ref nil :branch nil :tag nil)
+  :version "github-77f1a125539a925be0a213c0749847c37e375cf2"))
+("dexador" .
+ (:class qlot/source/ql:source-ql
+  :initargs (:%version :latest)
+  :version "ql-2024-10-12"))
+("jsown" .
+ (:class qlot/source/ql:source-ql
+  :initargs (:%version :latest)
+  :version "ql-2020-02-18"))
+("mu-cl-support" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "mu-semtech/mu-cl-support" :ref nil :branch nil :tag nil)
+  :version "github-7405e02c1f1c6803a8d3e98b7f5bde5ed63eaf1a"))

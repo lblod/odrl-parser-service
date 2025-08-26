@@ -1,0 +1,8 @@
+(asdf:defsystem :odrl-parser
+  :name "odrl-parser"
+  :description "Load and parse ODRL policies in a semantic.works stack."
+  :version "0.0.1"
+  :license "MIT"
+  :depends-on (mu-support cl-fuseki dexador)
+  :components ((:file packages)
+               (:file odrl-parser)))
