@@ -1,3 +1,5 @@
 (defpackage :odrl-parser
-  (:use :cl)
-  (:export #:boot))
+  (:use :cl :mu-support)
+  (:shadow :boot)
+  (:export #:boot)
+  (:documentation "Entrypoint for the service containing its API and configuration."))
