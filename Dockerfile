@@ -9,6 +9,8 @@ FROM madnificent/lisp-webservice:0.6.0
 
 RUN apt-get update; apt-get upgrade -y; apt-get install -y curl
 
+COPY ./launch-odrl-parser.sh /
+
 # Copy .bundle-libs directory
 COPY --from=qlot-env /app/.bundle-libs /app/.bundle-libs
 
@@ -17,5 +19,4 @@ ENV BOOT=odrl-parser
 
 RUN sbcl --load /app/.bundle-libs/setup.lisp --load /usr/src/load.lisp
 
-# TODO add setup.lisp loading?
-CMD ["/usr/src/startup.sh"]
+CMD ["/launch-odrl-parser.sh"]
