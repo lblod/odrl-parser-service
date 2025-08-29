@@ -5,4 +5,6 @@
   :license "MIT"
   :depends-on (mu-support cl-fuseki dexador)
   :components ((:file packages)
-               (:file odrl-parser)))
+               (:file settings)
+               (:file odrl-parser)
+               (:file query-execution)))
