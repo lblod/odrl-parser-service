@@ -18,7 +18,7 @@
   (:documentation "Supports performing SPARQL queries against a backend."))
 
 (defpackage :odrl-parser
-  (:use :cl :mu-support)
+  (:use :cl :mu-support :cl-ntriples)
   (:shadow :boot)
   (:export #:boot)
   (:documentation "Entrypoint for the service containing its API and configuration."))

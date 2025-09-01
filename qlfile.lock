@@ -18,3 +18,7 @@
  (:class qlot/source/github:source-github
   :initargs (:repos "mu-semtech/mu-cl-support" :ref nil :branch nil :tag nil)
   :version "github-7405e02c1f1c6803a8d3e98b7f5bde5ed63eaf1a"))
+("cl-ntriples" .
+ (:class qlot/source/ql:source-ql
+  :initargs (:%version :latest)
+  :version "ql-2019-03-07"))

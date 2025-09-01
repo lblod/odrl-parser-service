@@ -1,10 +1,9 @@
 (in-package :odrl-parser)
 
-;; TODO: change to configuration-graph or something
 (defparameter sparql:*application-graph*
-  (s-url (or (uiop:getenv "MU_APPLICATION_GRAPH")
-             "http://mu.semte.ch/application"))
-  "Standard graph for all sparql queries.")
+  (s-url (or (uiop:getenv "ODRL_POLICY_GRAPH")
+             "http://mu.semte.ch/graphs/odrl-policy"))
+  "Default graph where ODRL policies should be located in.")
 
 (defparameter sparql:*query-log-types* '(:default :update-group :update :query :ask)
   "If truthy, queries will be logged to *error-output*")
