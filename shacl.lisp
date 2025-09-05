@@ -51,7 +51,9 @@
                    :predicates (mapcar (lambda (prop) (shacl-to-acl prop notp)) properties))))
 
 (defun is-empty-node-p (path)
-  "Check whether path represents the URI used to represent empty nodes in property paths."
+  "Check whether PATH is the special uri for an empty node.
+
+The special uri was introduced to allow user to specify \"all predicates\" in a policy, as one would use `_' in a sparql-parser configuration.  This special uri was needed because in SHACL property paths must have a value for their object and otherwise we could not express sparql-parser rules of the of the form `<- _' or `<x _'. "
   (member path '("ext:all" "http://mu.semte.ch/vocabularies/ext/all") :test #'string=))
 
 (defmethod shacl-to-acl ((shape property-shape) &optional notp)
