@@ -1,4 +1,4 @@
-FROM fukamachi/qlot AS qlot-env
+FROM fukamachi/qlot:1.7.2 AS qlot-env
 
 WORKDIR /app
 # TODO: make asd filename configurable
@@ -15,7 +15,7 @@ COPY --from=qlot-env /app/.bundle-libs /app/.bundle-libs
 COPY . /app
 ENV BOOT=odrl-parser
 
-RUN sbcl --load .bundle-libs/setup.lisp --load /usr/src/load.lisp
+RUN sbcl --load /app/.bundle-libs/setup.lisp --load /usr/src/load.lisp
 
 # TODO add setup.lisp loading?
 CMD ["/usr/src/startup.sh"]
