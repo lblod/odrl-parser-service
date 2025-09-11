@@ -86,47 +86,52 @@
 ;;
 ;; Conversion to sparql-parser's ACL
 ;;
-(defgeneric odrl-to-acl (concept)
-  (:documentation "Convert an ODRL concept to its corresponding sparql-parser configuration macro."))
+;; NOTE (12/09/2025): The need to pass the configuration under construction is, at best, messy and
+;; would ideally be avoided.  Unfortunately, the need to keep track of some state is inherent to the
+;; taken object-based approach and the need to ensure each object is converted exactly once.
+;; Otherwise you risk ending up with configurations that contain, for example, the same graph
+;; specification once for each grant specified for it.
+(defgeneric odrl-to-acl (concept &optional configuration)
+  (:documentation "Convert an ODRL concept to its corresponding sparql-parser configuration macro.  The `configuration' argument can be used to pass along the configuration being created.  This is necessary to reuse already created entities where necessary.  For example, when multiple permissions target the same asset collection, this collection should be converted to a graph specification exactly once and all generated grants should refer to the same instance."))
 
-(defmethod odrl-to-acl ((concept policy))
-  (with-slots (rules) concept
-    (let* ((grants (mapcar #'odrl-to-acl rules))
-           ;; FIXME(A): This cause duplicate groups/graphs if they are used in multiple grants
-           ;; TODO(B): Move this logic into initialisation of `configuration'?
-           (groups (mapcar #'acl:group grants))
-           (graphs (mapcar #'acl:graph grants)))
-      (make-instance 'acl:configuration
-                     :groups groups
-                     :graphs graphs
-                     :grants grants))))
+(defmethod odrl-to-acl ((concept policy) &optional (configuration (make-instance 'acl:configuration)))
+  (mapcar (lambda (rule) (odrl-to-acl rule configuration)) (rules concept))
+  configuration)
 
-(defmethod odrl-to-acl ((concept rule-set))
+(defmethod odrl-to-acl ((concept rule-set) &optional configuration)
   (call-next-method))
 
-(defmethod odrl-to-acl ((concept party-collection))
+;; TODO(A): Properly handle calls where `configuration' is nil, in that case one could just return a
+;; new instance by default.
+(defmethod odrl-to-acl ((concept party-collection) &optional configuration)
   (with-slots (name query parameters) concept
-      (make-instance 'acl:group
-                     :name name
-                     :query query
-                     :parameters parameters)))
+    (acl:add-entity
+     configuration
+     (make-instance 'acl:group
+                    :name name
+                    :query query
+                    :parameters parameters))))
 
-(defmethod odrl-to-acl ((concept asset-collection))
+(defmethod odrl-to-acl ((concept asset-collection) &optional configuration)
   (with-slots (name graph shapes) concept
-    (make-instance 'acl:graph-spec
-                   :name name
-                   :graph graph
-                   :types (mapcar #'shacl:shacl-to-acl shapes))))
+    (acl:add-entity
+     configuration
+     (make-instance 'acl:graph-spec
+                    :name name
+                    :graph graph
+                    :types (mapcar #'shacl:shacl-to-acl shapes)))))
 
-;; TODO(A): permissions for the same graph *and* group should be combined together into a single grant
-(defmethod odrl-to-acl ((concept permission))
+(defmethod odrl-to-acl ((concept permission) &optional configuration)
   (with-slots (action target assignee) concept
-    (make-instance 'acl:grant
-                   :right `(,(odrl-to-acl action))
-                   :graph (odrl-to-acl target)
-                   :group (odrl-to-acl assignee))))
+    (acl:add-entity
+     configuration
+     (make-instance 'acl:grant
+                    :right `(,(odrl-to-acl action))
+                    :graph (odrl-to-acl target configuration)
+                    :group (odrl-to-acl assignee configuration)))))
 
-(defmethod odrl-to-acl ((concept action))
+(defmethod odrl-to-acl ((concept action) &optional configuration)
+  (declare (ignore configuration))
   (with-slots (uri) concept
     (cond
       ((cl-ppcre:scan ".*read>?$" uri) "read")

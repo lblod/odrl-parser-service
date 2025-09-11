@@ -33,7 +33,8 @@
            #:type-spec
            #:predicate-spec
            #:grant
-           #:direction-string)
+           #:direction-string
+           #:add-entity)
   (:documentation "Provides an implementation of sparql-parser's configuration DSL."))
 
 (defpackage :shacl

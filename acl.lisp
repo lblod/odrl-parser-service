@@ -9,19 +9,29 @@
 ;; TODO(C): There typically is also some (fairly) standard boiler plate to configure the service instance (setting some variables to appropriate values, logging, etc.)
 (defclass configuration ()
   ((groups :initarg :groups
-           :reader groups)
+           :initform '()
+           :accessor groups)
    (graphs :initarg :graphs
-           :reader graphs)
+           :accessor graphs
+           :initform '())
    (grants :initarg :grants
-           :reader grants))
+           :accessor grants
+           :initform '()))
   (:documentation "A configuration for the sparql-parser service consisting of a set of groups, graph specifications, and grants linking them."))
 
-;; TODO(B): add constraint
-(defclass group ()
+(defclass entity ()
+  ()
+  (:documentation "A common class class to capture the different configuration entities."))
+
+(defclass named-entity (entity)
   ((name :initarg :name
-         :initform (error "A NAME must be supplied for a group")
-         :reader name)
-   (query :initarg :query
+         :initform (error "A NAME must be supplied for a named entity")
+         :reader name))
+  (:documentation "An common class to capture configuration entities that have a name."))
+
+;; TODO(B): add constraint
+(defclass group (named-entity)
+  ((query :initarg :query
           :initform nil
           :reader query)
    (parameters :initarg :parameters
@@ -29,11 +39,8 @@
                :reader parameters))
   (:documentation "A class containing the information for a `supply-allowed-groups' rule"))
 
-(defclass graph-spec ()
-  ((name :initarg :name
-         :initform (error "A NAME must be supplied for a graph specification")
-         :reader name)
-   (graph :initarg :graph
+(defclass graph-spec (named-entity)
+  ((graph :initarg :graph
           :initform (error "A GRAPH (prefix) must be supplied for a graph specification")
           :reader graph)
    (types :initarg :types
@@ -96,6 +103,62 @@ simply be down cased."
           :reader group
           :type group))
   (:documentation "Grant one or more rights to a group to access a graph."))
+
+
+;;
+;; Constructing configurations
+;;
+(defgeneric matching-entity (configuration entity)
+  (:documentation "Return the entity instance in the configuration that \"matches\" the given one.  The exact meaning of \"matching\" depends on the type of the entity."))
+
+;; NOTE (13/09/2025): The following methods essentially define what it means for two `entity' to be
+;; equal.  For `group's and `graph's equality means having the same value for their `name' slot.
+;; For `grant's equality means referencing a `group' *and* `graph' with the same name.  In a more
+;; mature implementation these equality definitions would be incorporated in the object system.
+;; The underlying reasoning is that sparql-parser, presumably, requires unique names to correctly identify entities.
+(defmethod matching-entity ((configuration configuration) (entity group))
+  (find-if
+   (lambda (group) (string= (name entity) (name group)))
+   (groups configuration)))
+
+(defmethod matching-entity ((configuration configuration) (entity graph-spec))
+  (find-if
+   (lambda (graph) (string= (name entity) (name graph)))
+   (graphs configuration)))
+
+(defmethod matching-entity ((configuration configuration) (entity grant))
+  (find-if
+   (lambda (grant)
+     (and (string= (name (group grant)) (name (group entity)))
+          (string= (name (graph grant)) (name (graph entity)))))
+   (grants configuration)))
+
+
+(defgeneric add-entity (configuration entity)
+  (:documentation "Add an ENTITY to a CONFIGURATION.  The function will return the `entity' instance that is actually added to the CONFIGURATION.  This returned `entity' is either the provided ENTITY itself, or a `matching-entity' that was already part of the CONFIGURATION."))
+
+(defmethod add-entity ((configuration configuration) (named-entity graph-spec))
+  (or (matching-entity configuration named-entity)
+      (progn
+        (push named-entity (graphs configuration))
+        named-entity)))
+
+(defmethod add-entity ((configuration configuration) (named-entity group))
+  (or (matching-entity configuration named-entity)
+      (progn
+        (push named-entity (groups configuration))
+        named-entity)))
+
+(defmethod add-entity ((configuration configuration) (entity grant))
+  (let ((matching-grant (matching-entity configuration entity)))
+    (if matching-grant
+        (progn
+          (setf (right matching-grant)
+                (union (right entity) (right matching-grant)))
+          matching-grant)
+        (progn
+          (push entity (grants configuration))
+          entity))))
 
 ;;
 ;; Printing objects
