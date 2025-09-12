@@ -20,8 +20,8 @@
   (:documentation "A configuration for the sparql-parser service consisting of a set of groups, graph specifications, and grants linking them."))
 
 (defclass entity ()
-  ()
-  (:documentation "A common class class to capture the different configuration entities."))
+  ((description :type (or null string) :initarg :description :initform nil))
+  (:documentation "A common class that encompasses the different elements in sparql-parser's configuration DSL.  While entity descriptions are technically not part of sparql-parser's DSL, they are used to allow adding comments with additional information to the generated configurations."))
 
 (defclass named-entity (entity)
   ((name :initarg :name
@@ -176,17 +176,19 @@ simply be down cased."
             grants)))
 
 (defmethod print-object ((object group) stream)
-  (with-slots (name query parameters) object
+  (with-slots (description name query parameters) object
     (format stream
-            "~&(supply-allowed-group \"~a\"~@[~&~2t:parameters (~{\"~a\"~^ ~})~]~@[~&~2t:query \"~a\"~])~%~%"
+            "~&~@[;; ~a~]~&(supply-allowed-group \"~a\"~@[~&~2t:parameters (~{\"~a\"~^ ~})~]~@[~&~2t:query \"~a\"~])~%~%"
+            description
             name
             parameters
             query)))
 
 (defmethod print-object ((object graph-spec) stream)
-  (with-slots (name graph types) object
+  (with-slots (description name graph types) object
     (format stream
-            "~&(define-graph ~a (\"~a\")~@[~{~a~^~&~}~])~%~%"
+            "~&~@[;; ~a~]~&(define-graph ~a (\"~a\")~@[~{~a~^~&~}~])~%~%"
+            description
             name
             graph
             types)))

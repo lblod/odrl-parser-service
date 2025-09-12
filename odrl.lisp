@@ -104,19 +104,21 @@
 ;; TODO(A): Properly handle calls where `configuration' is nil, in that case one could just return a
 ;; new instance by default.
 (defmethod odrl-to-acl ((concept party-collection) &optional configuration)
-  (with-slots (name query parameters) concept
+  (with-slots (description name query parameters) concept
     (acl:add-entity
      configuration
      (make-instance 'acl:group
+                    :description description
                     :name name
                     :query query
                     :parameters parameters))))
 
 (defmethod odrl-to-acl ((concept asset-collection) &optional configuration)
-  (with-slots (name graph shapes) concept
+  (with-slots (description name graph shapes) concept
     (acl:add-entity
      configuration
      (make-instance 'acl:graph-spec
+                    :description description
                     :name name
                     :graph graph
                     :types (mapcar #'shacl:shacl-to-acl shapes)))))
