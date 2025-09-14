@@ -8,6 +8,7 @@
                (:file settings)
                (:file acl)
                (:file shacl)
+               (:file odrl)
                (:file odrl-parser)
                (:file query-execution)
                (:file configuration-parsing)))

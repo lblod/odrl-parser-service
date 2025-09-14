@@ -36,6 +36,15 @@
            #:shacl-to-acl)
   (:documentation "A simplified implementation of the Shapes Constraint Language (SHACL)."))
 
+(defpackage :odrl
+  (:use :cl)
+  (:export #:rule-set
+           #:party-collection
+           #:asset-collection
+           #:permission
+           #:action)
+  (:documentation "A simplified implementation of the ODRL information model."))
+
 (defpackage :odrl-parser
   (:use :cl :mu-support :cl-ntriples)
   (:shadow :boot)
