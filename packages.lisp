@@ -17,6 +17,16 @@
            #:update)
   (:documentation "Supports performing SPARQL queries against a backend."))
 
+(defpackage :acl
+  (:use :cl)
+  (:export #:configuration
+           #:group
+           #:graph-spec
+           #:type-spec
+           #:predicate-spec
+           #:grant)
+  (:documentation "Provides an implementation of sparql-parser's configuration DSL."))
+
 (defpackage :odrl-parser
   (:use :cl :mu-support :cl-ntriples)
   (:shadow :boot)
