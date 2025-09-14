@@ -5,6 +5,16 @@ This service supports converting authorisation rules expressed as [ODRL](https:/
 This service is currently under development, this README will be extended along the way.
 
 
+## API
+### `GET /load-policy`
+Insert the triples for the ODRL policy defined in `config/config.nt` into the backend's triplestore.
+
+### `GET /generate-config[?policy-name=NAME]`
+Generate the sparql-parser configuration for a stored ODRL policy `NAME`. Here `NAME` should be the last past of the URI of a `odrl:Set` resource. If no policy name is provided the service will generate a configuration for each `odrl:Set` resource it finds in the database.
+
+Any generated configuration files are written to the mounted volume. As filenames the last part of the resource's URI is used, same value as one would provide as `NAME` argument.
+
+
 ## Local development
 In contrast to most other mu-services this service is not developed based on a template, since there is currently no common lisp template available. Consequently, developing this service currently requires a bit more setup than usual. Currently, the major differences are:
 
