@@ -4,6 +4,15 @@ This service supports converting authorisation rules expressed as [ODRL](https:/
 
 This service is currently under development, this README will be extended along the way.
 
+## Installation
+Add the service to your project as follows[^1]:
+```yaml
+odrl-parser
+  image: lblod/odrl-parser-service:feature-initial-implementation
+  volumes:
+    - ./config/odrl-parser:/config
+```
+
 
 ## API
 ### `GET /load-policy`
