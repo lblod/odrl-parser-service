@@ -7,6 +7,7 @@
   :components ((:file packages)
                (:file settings)
                (:file acl)
+               (:file shacl)
                (:file odrl-parser)
                (:file query-execution)
                (:file configuration-parsing)))

@@ -27,6 +27,13 @@
            #:grant)
   (:documentation "Provides an implementation of sparql-parser's configuration DSL."))
 
+(defpackage :shacl
+  (:use :cl)
+  (:export #:node-shape
+           #:property-shape
+           #:property-path)
+  (:documentation "A simplified implementation of the Shapes Constraint Language (SHACL)."))
+
 (defpackage :odrl-parser
   (:use :cl :mu-support :cl-ntriples)
   (:shadow :boot)
