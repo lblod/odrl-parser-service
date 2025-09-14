@@ -88,3 +88,53 @@ simply be down cased."
           :reader group
           :type group))
   (:documentation "Grant one or more rights to a group to access a graph."))
+
+;;
+;; Printing objects
+;;
+;; These methods convert objects to strings as they would be written in a sparql-parser
+;; configuration.  Using `print-objects' has the advantage that this is automatically applied
+;; everywhere, irrelevant of whether we are, for example, writing to a file or the printing error
+;; messages.
+(defmethod print-object ((object configuration) stream)
+  (with-slots (graphs groups grants) object
+    (format stream
+            ";; Graphs~&~{~a~^~&~}~%;; Groups~&~{~a~^~&~}~%;; Grants~&~{~a~^~&~}"
+            graphs
+            groups
+            grants)))
+
+(defmethod print-object ((object group) stream)
+  (with-slots (name query parameters) object
+    (format stream
+            "~&(supply-allowed-group \"~a\"~@[~&~2t:parameters (~{\"~a\"~^ ~})~]~@[~&~2t:query \"~a\"~])~%~%"
+            name
+            parameters
+            query)))
+
+(defmethod print-object ((object graph-spec) stream)
+  (with-slots (name graph types) object
+    (format stream
+            "~&(define-graph ~a (\"~a\")~@[~{~a~^~&~}~])~%~%"
+            name
+            graph
+            types)))
+
+(defmethod print-object ((object type-spec) stream)
+  (with-slots (resource-type predicates) object
+    (format stream
+            "~&~2t(\"~a\" ~:[-> _~;~:*~{~a~^~&~4t~}~])"
+            resource-type
+            predicates)))
+
+(defmethod print-object ((object predicate-spec) stream)
+  (with-slots (direction predicate) object
+    (format stream "~a ~:[_~;~:*\"~a\"~]" direction predicate)))
+
+(defmethod print-object ((object grant) stream)
+  (with-slots (right graph group) object
+    (format stream
+            "~&(grant (~{~a~^ ~})~&~2t:to-graph ~a~&~2t:for-allowed-group \"~a\")~%~%"
+            right
+            (name graph)
+            (name group))))
