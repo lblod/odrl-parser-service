@@ -42,7 +42,8 @@
            #:party-collection
            #:asset-collection
            #:permission
-           #:action)
+           #:action
+           #:odrl-to-acl)
   (:documentation "A simplified implementation of the ODRL information model."))
 
 (defpackage :odrl-parser

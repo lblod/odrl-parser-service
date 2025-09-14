@@ -84,6 +84,57 @@
 
 
 ;;
+;; Conversion to sparql-parser's ACL
+;;
+(defgeneric odrl-to-acl (concept)
+  (:documentation "Convert an ODRL concept to its corresponding sparql-parser configuration macro."))
+
+(defmethod odrl-to-acl ((concept policy))
+  (with-slots (rules) concept
+    (let* ((grants (mapcar #'odrl-to-acl rules))
+           ;; FIXME(A): This cause duplicate groups/graphs if they are used in multiple grants
+           ;; TODO(B): Move this logic into initialisation of `configuration'?
+           (groups (mapcar #'acl:group grants))
+           (graphs (mapcar #'acl:graph grants)))
+      (make-instance 'acl:configuration
+                     :groups groups
+                     :graphs graphs
+                     :grants grants))))
+
+(defmethod odrl-to-acl ((concept rule-set))
+  (call-next-method))
+
+(defmethod odrl-to-acl ((concept party-collection))
+  (with-slots (name query parameters) concept
+      (make-instance 'acl:group
+                     :name name
+                     :query query
+                     :parameters parameters)))
+
+(defmethod odrl-to-acl ((concept asset-collection))
+  (with-slots (name graph shapes) concept
+    (make-instance 'acl:graph-spec
+                   :name name
+                   :graph graph
+                   :types (mapcar #'shacl:shacl-to-acl shapes))))
+
+;; TODO(A): permissions for the same graph *and* group should be combined together into a single grant
+(defmethod odrl-to-acl ((concept permission))
+  (with-slots (action target assignee) concept
+    (make-instance 'acl:grant
+                   :right `(,(odrl-to-acl action))
+                   :graph (odrl-to-acl target)
+                   :group (odrl-to-acl assignee))))
+
+(defmethod odrl-to-acl ((concept action))
+  (with-slots (uri) concept
+    (cond
+      ((cl-ppcre:scan ".*read>?$" uri) "read")
+      ((cl-ppcre:scan ".*modify>?$" uri) "write")
+      (t (error "No matching right found for \"~a\"" uri)))))
+
+
+;;
 ;; Varia
 ;;
 (defmethod print-object ((concept action) stream)
