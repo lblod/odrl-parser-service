@@ -24,14 +24,16 @@
            #:graph-spec
            #:type-spec
            #:predicate-spec
-           #:grant)
+           #:grant
+           #:direction-string)
   (:documentation "Provides an implementation of sparql-parser's configuration DSL."))
 
 (defpackage :shacl
   (:use :cl)
   (:export #:node-shape
            #:property-shape
-           #:property-path)
+           #:property-path
+           #:shacl-to-acl)
   (:documentation "A simplified implementation of the Shapes Constraint Language (SHACL)."))
 
 (defpackage :odrl-parser

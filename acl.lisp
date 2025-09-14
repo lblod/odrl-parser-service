@@ -73,6 +73,14 @@ simply be down cased."
               :reader predicate))
   (:documentation "A predicate specification specifies in which direction to follow a given predicate"))
 
+(defun direction-string (inversep notp)
+  "Determine the correct direction symbol for a predicate specification."
+  (cond
+    ((and inversep notp) "<x")
+    ((and inversep (not notp)) "<-")
+    ((and (not inversep) notp) "x>")
+    (t "->")))
+
 ;; TODO(A): support scopes
 (defclass grant (entity)
   ((right :initarg :right
