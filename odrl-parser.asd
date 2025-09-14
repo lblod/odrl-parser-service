@@ -6,6 +6,7 @@
   :depends-on (mu-support cl-fuseki dexador cl-ntriples)
   :components ((:file packages)
                (:file settings)
+               (:file policy-retrieval)
                (:file acl)
                (:file shacl)
                (:file odrl)

@@ -17,6 +17,14 @@
            #:update)
   (:documentation "Supports performing SPARQL queries against a backend."))
 
+(defpackage :policy-retrieval
+  (:use :cl :mu-support :alexandria)
+  (:import-from :alexandria #:when-let*)
+  (:export #:list-known-policies
+           #:make-rule-set)
+  (:local-nicknames (:mu :mu-support))
+  (:documentation "Functionality to retrieve ODRL policies from a backend and convert them from plain triples to the service's ODRL model."))
+
 (defpackage :acl
   (:use :cl)
   (:export #:configuration
