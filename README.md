@@ -54,6 +54,12 @@ forward:
 Note that `8896` is the host port from which the service will send requests for the triplestore as configured in the [settings file.](https://github.com/lblod/odrl-parser-service/blob/feat/initial-implementation/settings.lisp#L26). If you want to use a different port make sure to update the port in the settings file as well.
 
 
+### Tests
+The files in the `tests` folder provide some, rudimentary, functionality to simplify manually testing parts of the service. Each file provides functions to create object instances for the different classes defined by this service. These can be used to manually test individual steps in the conversion flow.
+
+Note, these files are not **not** automatically loaded and their functions are **not** exported. Before using these functions, make sure to load the file(s) in question.
+
+
 [^1]: Since the service is still in the alpha development phase no tagged version is currently available.
 
 [^2]: Consult [qlot](https://github.com/fukamachi/qlot) for more information on how to install `qlot` and how it works.
