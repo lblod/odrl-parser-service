@@ -35,6 +35,6 @@
 ;; TODO: Might make this configurable
 (defparameter output-directory
   (if (find :docker *features*)
-      "config/"
+      "/config/"
       "examples/")
   "The directory generated files will be written to.")

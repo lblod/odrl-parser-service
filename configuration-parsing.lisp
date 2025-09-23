@@ -7,7 +7,7 @@
 ;; TODO(B): Make exact policy file configurable
 (defparameter *policy-file*
   (if (find :docker *features*)
-      "config/config.nt"
+      "../config/config.nt"
       "examples/config-simplified.nt")
   "The file to read the ODRL policy from.")
 
