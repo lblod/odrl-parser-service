@@ -1,22 +1,21 @@
-FROM fukamachi/qlot:1.7.2 AS qlot-env
-
-WORKDIR /app
-# TODO: make asd filename configurable
-COPY qlfile* odrl-parser.asd ./
-RUN qlot bundle
-
 FROM madnificent/lisp-webservice:0.6.0
 
 RUN apt-get update; apt-get upgrade -y; apt-get install -y curl
 
+
+RUN curl -L https://qlot.tech/installer | sh
+
 COPY ./launch-odrl-parser.sh /
 
-# Copy .bundle-libs directory
-COPY --from=qlot-env /app/.bundle-libs /app/.bundle-libs
-
 COPY . /app
+
+# qlot commands must be run in folder with .qlfile
+WORKDIR /app
+RUN qlot install
+
 ENV BOOT=odrl-parser
 
-RUN sbcl --load /app/.bundle-libs/setup.lisp --load /usr/src/load.lisp
+RUN qlot exec sbcl --load /usr/src/load.lisp
 
+WORKDIR /
 CMD ["/launch-odrl-parser.sh"]
