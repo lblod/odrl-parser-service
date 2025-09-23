@@ -5,10 +5,10 @@ This service supports converting authorisation rules expressed as [ODRL](https:/
 This service is currently under development, this README will be extended along the way.
 
 ## Installation
-Add the service to your project as follows[^1]:
+Add the service to your project as follows:
 ```yaml
 odrl-parser
-  image: lblod/odrl-parser-service:feature-initial-implementation
+  image: lblod/odrl-parser-service
   volumes:
     - ./config/odrl-parser:/config
 ```
@@ -37,7 +37,7 @@ Given these limitations the most convenient way to develop on this service is to
 
 Step by step instructions:
 - Clone this repository and `cd` to its directory.
-- Install the necessary dependencies by running `qlot install`[^2]
+- Install the necessary dependencies by running `qlot install`[^1]
 - Start a project-local REPL, see the corresponding entry in the [qlot README](https://github.com/fukamachi/qlot?tab=readme-ov-file#working-with-slime) for more details on how to do this in different editors.
 - Load this service's system using by executing `(asdf:load-system "odrl-parser")` in the project-local REPL.
 - Add the `docker-forward` service to the stack you want to interact with by adding the following to its docker compose configuration. Make sure to `up` the added forward service.
@@ -60,6 +60,4 @@ The files in the `tests` folder provide some, rudimentary, functionality to simp
 Note, these files are not **not** automatically loaded and their functions are **not** exported. Before using these functions, make sure to load the file(s) in question.
 
 
-[^1]: Since the service is still in the alpha development phase no tagged version is currently available.
-
-[^2]: Consult [qlot](https://github.com/fukamachi/qlot) for more information on how to install `qlot` and how it works.
+[^1]: Consult [qlot](https://github.com/fukamachi/qlot) for more information on how to install `qlot` and how it works.
