@@ -60,4 +60,4 @@ The files in the `tests` folder provide some, rudimentary, functionality to simp
 Note, these files are not **not** automatically loaded and their functions are **not** exported. Before using these functions, make sure to load the file(s) in question.
 
 
-[^1]: Consult [qlot](https://github.com/fukamachi/qlot) for more information on how to install `qlot` and how it works.
+[^1]: Consult [qlot](https://github.com/fukamachi/qlot) for more information on how to install `qlot` and how it works. Important, make sure your the `qlot` binary is accessible by your editor.
