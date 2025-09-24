@@ -6,21 +6,21 @@
 ;; This asset collection contains all information that is available to users with the LoketLB-mandaatGebruiker role in the context of the LMB app.
 (define-graph organization-mandatendatabank ("http://mu.semte.ch/graphs/organizations/")
   ("http://data.vlaanderen.be/ns/mandaat#Mandataris" -> _)
-  ("http://data.vlaanderen.be/ns/mandaat#Fractie" -> _)
-  ("http://data.vlaanderen.be/ns/persoon#Persoon" x> "http://data.vlaanderen.be/ns/persoon#registratie")
   ("http://data.vlaanderen.be/ns/persoon#Persoon" x> "http://data.vlaanderen.be/ns/persoon#heeftGeboorte"
     x> "http://data.vlaanderen.be/ns/persoon#registratie")
-  ("http://data.vlaanderen.be/ns/persoon#Persoon" <x "http://data.vlaanderen.be/ns/mandaat#isBestuurlijkeAliasVan"))
+  ("http://data.vlaanderen.be/ns/persoon#Persoon" <x "http://data.vlaanderen.be/ns/mandaat#isBestuurlijkeAliasVan")
+  ("http://data.vlaanderen.be/ns/persoon#Persoon" x> "http://data.vlaanderen.be/ns/persoon#registratie")
+  ("http://data.vlaanderen.be/ns/mandaat#Fractie" -> _))
 
 ;; This asset collection contains all information that is available to the public in the context of the LMB app.
 (define-graph public ("http://mu.semte.ch/graphs/public")
-  ("http://mu.semte.ch/vocabularies/ext/GeslachtCode" -> _)
+  ("http://www.w3.org/2004/02/skos/core#Concept" <- "http://lblod.data.gift/vocabularies/lmb/InstallatievergaderingStatus"
+    <- "http://www.w3.org/ns/regorg#orgStatus")
+  ("http://data.vlaanderen.be/ns/besluit#Bestuurseenheid" <- _)
   ("http://www.w3.org/2004/02/skos/core#ConceptScheme" -> "http://www.w3.org/2004/02/skos/core#inScheme"
     -> "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
     -> "http://www.w3.org/2004/02/skos/core#prefLabel")
-  ("http://data.vlaanderen.be/ns/besluit#Bestuurseenheid" <- _)
-  ("http://www.w3.org/2004/02/skos/core#Concept" <- "http://www.w3.org/ns/regorg#orgStatus"
-    <- "http://lblod.data.gift/vocabularies/lmb/InstallatievergaderingStatus"))
+  ("http://mu.semte.ch/vocabularies/ext/GeslachtCode" -> _))
 
 
 ;; Groups
