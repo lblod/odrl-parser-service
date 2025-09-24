@@ -146,6 +146,7 @@ surrounding \"<\" and \">\"."
   (when-let* ((triples (retrieve-triples uri))
               (permissions (filter-triples-for-predicate "odrl:permission" triples)))
     (make-instance 'odrl:rule-set
+                   :uri uri
                    :rules (mapcar #'make-permission permissions))))
 
 (defun make-permission (triple)
@@ -156,6 +157,7 @@ surrounding \"<\" and \">\"."
               (target (find-triple-for-predicate "odrl:target" triples))
               (assignee (find-triple-for-predicate "odrl:assignee" triples)))
     (make-instance 'odrl:permission
+                   :uri uri
                    :action (make-action action)
                    :target (make-asset-collection target)
                    :assignee (make-party-collection assignee))))
@@ -173,6 +175,7 @@ surrounding \"<\" and \">\"."
           (parameters (collect-object-for-predicate "ext:queryParameters" triples))
           (query (object-value-for-predicate "ext:definedBy" triples)))
       (make-instance 'odrl:party-collection
+                     :uri uri
                      :name name
                      :description description
                      :parameters parameters
@@ -232,9 +235,10 @@ surrounding \"<\" and \">\"."
               (path-uri (object-value-from-triple path-triple)))
     (make-instance
      'shacl:property-shape
-      :path (if (blank-node-uri-p path-uri)
-                (make-property-path path-uri)
-                path-uri))))
+     :uri uri
+     :path (if (blank-node-uri-p path-uri)
+               (make-property-path path-uri)
+               path-uri))))
 
 (defun make-property-path (uri)
   "Make a `shacl:property-path' from the data linked to the resource with URI."

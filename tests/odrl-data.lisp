@@ -52,6 +52,7 @@
 
 (defun test-permission-modify ()
   (make-instance 'permission
+                 :uri "ext:modifyPermission"
                  :action (test-action-modify)
                  :target (test-asset-collection)
                  :assignee (test-party-with-query-and-param)))
