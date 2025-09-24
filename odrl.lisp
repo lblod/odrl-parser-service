@@ -51,13 +51,10 @@
    (graph :initarg :graph
           :initform (error "A GRAPH (prefix) must be supplied for an asset collection")
           :reader graph) ; ext:graphPrefix
-   ;; NOTE (04/09/2025): The following is a list of `shacl:node-shape's that are contained in the
-   ;; node shape linked to via `ext:shaclShape'.  The overarching node shape used in the raw policy
-   ;; data is not explicitly retained.  This simplifies the conversion to ACL as it allows to simply
-   ;; iterate over node shapes without having to consider multiple layers of node shapes.
-   (shapes :initarg :shapes
-           :initform (error "At least one element for SHAPES must be supplied for an asset collection")))
-  (:documentation "An ODRL Asset collection representing a graph.  In contrast to the ODRL specification this does not explicitly contain assets.  Instead this uses SHACL shapes to define exactly which assets are part of the collection.  Essentially each node shape in the `shapes' list could be considered an asset."))
+   (assets :initarg :assets
+           :type list ; of `shacl:node-shape's
+           :reader assets)) ; ^odrl:partOf
+  (:documentation "An ODRL Asset collection representing a graph.  In contrast to the ODRL specification this does explicitly refer to its contained assets, thereby modelling the inverse of the ODRL's partOf predicate.  This inversion simplifies converting ODRL policies to ACL configurations as it allows to iterate of the necessary assets when given an asset collection, which is in turn referenced by a rule for the starting point of the ODRL to ACL conversion.  Otherwise, one would somehow have to keep track of all asset instances and link them their collections.  A consequence of this is that the entity creating `asset-collection' instances is responsible for inverting the relations between assets and the asset collections they part of.  Furthermore, assets are represented as instances of `shacl:node-shape' and there is *no* explicit class for ODRL Assets."))
 
 (defclass rule (concept)
   ((action :initarg :action
@@ -114,14 +111,14 @@
                     :parameters parameters))))
 
 (defmethod odrl-to-acl ((concept asset-collection) &optional configuration)
-  (with-slots (description name graph shapes) concept
+  (with-slots (description name graph assets) concept
     (acl:add-entity
      configuration
      (make-instance 'acl:graph-spec
                     :description description
                     :name name
                     :graph graph
-                    :types (mapcar #'shacl:shacl-to-acl shapes)))))
+                    :types (mapcar #'shacl:shacl-to-acl assets)))))
 
 (defmethod odrl-to-acl ((concept permission) &optional configuration)
   (with-slots (action target assignee) concept
