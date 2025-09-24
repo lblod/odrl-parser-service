@@ -179,47 +179,32 @@ surrounding \"<\" and \">\"."
                      ;; TODO(B): this escaping should probably be applied to all strings
                      :query (cl-ppcre:regex-replace-all "\"" query "\\\"")))))
 
-(defun flatten-rdf-list (rdf-list)
-  "Return a flat list containing the elements in RDF-LIST.
-
-RDF-LIST must be a list containing 2 jsown objects:
-- one linking the to first element of the list; and
-- one linking to the rest of the list."
-  (when-let* ((first-uri (object-value-for-predicate "rdf:first" rdf-list))
-              (rest-uri (object-value-for-predicate "rdf:rest" rdf-list)))
-    (append `(,first-uri)
-             (unless (string-equal rest-uri (expand-uri "rdf:nil"))
-               (flatten-rdf-list (retrieve-triples rest-uri))))))
+;; TODO: Should be able to handle prefixes collection URIs?
+(defun retrieve-assets-for-collection (collection)
+  "Retrieve a list of assets that are part of the COLLECTION."
+  (mapcar
+   (lambda (obj) (jsown:val (jsown:val obj "asset") "value"))
+   (sparql:select
+    (format nil "DISTINCT ?asset")
+    (format nil "?asset a odrl:Asset ; odrl:partOf ~a ." (escape-uri collection)))))
 
 (defun make-asset-collection (triple)
-  "Make an `asset-collection' instance for the target linked in TRIPLE."
+  "Make an `odrl:asset-collection' instance for the target linked in TRIPLE."
   (when-let* ((uri (object-value-from-triple triple))
               (triples (retrieve-triples uri))
               (name (object-value-for-predicate "vcard:fn" triples))
               (graph (object-value-for-predicate "ext:graphPrefix" triples))
-              (shape (object-value-for-predicate "ext:shaclShape" triples)))
+              (assets (retrieve-assets-for-collection uri)))
     (let ((description (object-value-for-predicate "dct:description" triples)))
       (make-instance 'odrl:asset-collection
-                      :name name
-                      :description description
-                      :graph graph
-                      :shapes (make-node-shapes shape)))))
-
-(defun make-node-shapes (uri)
-  "Convert the node shape resource with URI to a list of its corresponding `shacl::node-shape's.
-
-If the node shape resource only links to other node shapes using `sh:or'. The result is a list
-containing one `shacl::node-shape' for each contained node shape resource in the list. Otherwise, the result is a list with a single `shacl::node-shape' corresponding to the identified resource."
-  (let* ((triples (retrieve-triples uri))
-         (or-triple (find-triple-for-predicate "sh:or" triples)))
-    (if or-triple
-        (let* ((or-uri (object-value-from-triple or-triple))
-               (shapes-in-or (retrieve-triples or-uri)))
-          (mapcar #'make-node-shape (flatten-rdf-list shapes-in-or)))
-        `(,(make-node-shape uri)))))
+                     :uri uri
+                     :name name
+                     :description description
+                     :graph graph
+                     :assets (mapcar #'make-node-shape assets)))))
 
 (defun make-node-shape (uri)
-  "Make a `shacl::node-shape' for the blank node with the given URI."
+  "Make a `shacl:node-shape' for the blank node with the given URI."
   (when-let* ((triples (retrieve-triples uri))
               (target-class (object-value-for-predicate "sh:targetClass" triples)))
     (let* ((not-constraint (find-triple-for-predicate "sh:not" triples))
@@ -229,9 +214,10 @@ containing one `shacl::node-shape' for each contained node shape resource in the
                              (filter-triples-for-predicate "sh:property" triples-in-not))
                            (filter-triples-for-predicate "sh:property" triples))))
       (make-instance 'shacl:node-shape
-                      :target-class target-class
-                      :properties (mapcar #'make-property-shape properties)
-                      :notp (when not-constraint t)))))
+                     :uri uri
+                     :target-class target-class
+                     :properties (mapcar #'make-property-shape properties)
+                     :notp (when not-constraint t)))))
 
 (defun blank-node-uri-p (uri)
   "Check whether a given URI is for a blank."
