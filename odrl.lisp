@@ -141,6 +141,19 @@
 ;;
 ;; Varia
 ;;
+(defmethod print-object ((object rule-set) stream)
+  (print-unreadable-object (object stream)
+    (with-slots (uri rules) object
+      (format
+       stream
+       "<~a> odrl:permission ~{~2t~a~^~&~}"
+       uri
+       (mapcar #'uri rules)))))
+
+(defmethod print-object ((object rule) stream)
+  (print-unreadable-object (object stream)
+    (format stream "~a" (uri object))))
+
 (defmethod print-object ((concept action) stream)
   (print-unreadable-object (concept stream)
     (format stream "~a" (uri concept))))
