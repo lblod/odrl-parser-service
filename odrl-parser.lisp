@@ -51,5 +51,5 @@ filename."
               :if-exists :supersede)
            (write
             ;; TODO(A): handle errors/nil from `make-rule-set'
-            (odrl:odrl-to-acl (policy-retrieval:make-rule-set uri))
+            (odrl:odrl-to-acl (policy-retrieval:parse-stored-policy uri))
             :stream stream)))))

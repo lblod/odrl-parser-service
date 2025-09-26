@@ -19,9 +19,8 @@
 
 (defpackage :policy-retrieval
   (:use :cl :mu-support :alexandria)
-  (:import-from :alexandria #:when-let*)
   (:export #:list-known-policies
-           #:make-rule-set)
+           #:parse-stored-policy)
   (:local-nicknames (:mu :mu-support))
   (:documentation "Functionality to retrieve ODRL policies from a backend and convert them from plain triples to the service's ODRL model."))
 

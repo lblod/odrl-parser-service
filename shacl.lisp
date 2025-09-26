@@ -21,17 +21,20 @@
    ;; (components) in general.
    (notp :initarg :notp
          :type boolean
-         :initform nil))
+         :initform nil
+         :reader notp))
   (:documentation "A SHACL node shape"))
 
 (defclass property-shape (shape)
   ((path :initarg :path
-         :initform nil)) ; value is a predicate URI or a `property-path' instance
+         :initform nil
+         :reader path)) ; value is a predicate URI or a `property-path' instance
   (:documentation "A SHACL property shape"))
 
 (defclass property-path ()
   ((predicate-path :initarg :predicate-path
-                   :initform (error "A PREDICATE-PATH must be supplied for a property path"))
+                   :initform (error "A PREDICATE-PATH must be supplied for a property path")
+                   :reader predicate-path)
    (object :initarg :object
            :initform (error "An OBJECT must be supplied for a property path")
            :reader object))
