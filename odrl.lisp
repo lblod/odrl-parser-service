@@ -146,7 +146,8 @@
     (with-slots (uri rules) object
       (format
        stream
-       "<~a> odrl:permission ~{~2t~a~^~&~}"
+       "~a <~a>~&~2t<permissions:~&~4t ~{~2t~a~^~&~}>"
+       (type-of object)
        uri
        (mapcar #'uri rules)))))
 
@@ -157,3 +158,29 @@
 (defmethod print-object ((concept action) stream)
   (print-unreadable-object (concept stream)
     (format stream "~a" (uri concept))))
+
+(defmethod print-object ((object asset-collection) stream)
+  (print-unreadable-object (object stream)
+    (with-slots (uri name description graph assets) object
+      (format
+       stream
+       "~a ~a~&~2t<name: ~a>~&~2t<description: ~a>~&~2t<graph: ~a>~&~2t<assets: ~{~&~4t~a~}>"
+       (type-of object)
+       uri
+       name
+       description
+       graph
+       assets))))
+
+(defmethod print-object ((object party-collection) stream)
+  (print-unreadable-object (object stream)
+    (with-slots (uri name description parameters query) object
+      (format
+       stream
+       "~a ~a~&~2t<name: ~a>~&~2t<description: ~a>~&~2t<parameters: ~a>~&~2t<query: ~a>"
+       (type-of object)
+       uri
+       name
+       description
+       parameters
+       query))))

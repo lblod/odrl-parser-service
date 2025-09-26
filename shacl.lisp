@@ -76,3 +76,28 @@ The special uri was introduced to allow user to specify \"all predicates\" in a 
      :predicate (if (typep path 'property-path)
                     (unless (is-empty-node-p (object path)) (object path))
                     (unless (is-empty-node-p path) path)))))
+
+
+;;
+;; Varia
+;;
+(defmethod print-object ((shape node-shape) stream)
+  (print-unreadable-object (shape stream)
+    (with-slots (uri properties notp) shape
+      (format
+       stream
+       "~a <~a>~&~2t<inverse: ~a>~&~2t<properties:~&~{~4t~a~&~}>"
+       (type-of shape)
+       uri
+       notp
+       properties))))
+
+(defmethod print-object ((shape property-shape) stream)
+  (print-unreadable-object (shape stream)
+    (with-slots (uri path) shape
+      (format stream "~a <~a>~&~4t<path: ~a>" (type-of shape) uri path))))
+
+(defmethod print-object ((path property-path) stream)
+  (print-unreadable-object (path stream)
+    (with-slots (predicate-path object) path
+      (format stream "~a <~a> <~a>" (type-of path) predicate-path object))))
