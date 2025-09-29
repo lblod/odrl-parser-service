@@ -96,6 +96,7 @@
   configuration)
 
 (defmethod odrl-to-acl ((concept rule-set) &optional configuration)
+  (declare (ignore configuration))
   (call-next-method))
 
 ;; TODO(A): Properly handle calls where `configuration' is nil, in that case one could just return a

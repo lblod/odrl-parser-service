@@ -48,6 +48,7 @@
   (:documentation "Convert a SHACL shape to its corresponding sparql-parser entity."))
 
 (defmethod shacl-to-acl ((shape node-shape) &optional notp)
+  (declare (ignore notp))
   (with-slots (target-class properties notp) shape
     (make-instance 'acl:type-spec
                    :resource-type target-class
