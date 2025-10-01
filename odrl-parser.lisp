@@ -44,12 +44,13 @@ filename."
                          (policy-retrieval:list-known-policies))))
     (loop
       for uri in policy-uris
-      do (with-open-file
-             (stream
-              (concatenate 'string output-directory (extract-filename uri) ".lisp")
-              :direction :output
-              :if-exists :supersede)
-           (write
-            ;; TODO(A): handle errors/nil from `make-rule-set'
-            (odrl:odrl-to-acl (policy-retrieval:parse-stored-policy uri))
-            :stream stream)))))
+      do (handler-case
+             (let ((conf (odrl:odrl-to-acl (policy-retrieval:parse-stored-policy uri))))
+               (with-open-file
+                 (stream
+                  (concatenate 'string output-directory (extract-filename uri) ".lisp")
+                  :direction :output
+                  :if-exists :supersede)
+               (write conf :stream stream)))
+           (error (e)
+             (format t "~& >> WARN: An error occurred when parsing policy \"~a\", no configuration written: \"~a\"" uri e))))))

@@ -3,12 +3,7 @@
 ;; Functionality to read ODRL policies form the backend an convert them to the service's internal
 ;; ODRL model.
 ;;
-;; NOTE (13/09/2025): This is currently in a very rough state and requires at least to following
-;; improvements:
-;; - Catch errors from instance creation. If the retrieved data is incorrect/incomplete, errors can
-;;   be thrown by the `make-instance' calls, currently these are never caught and will just
-;;   propagate to the top-level.
-;; - Improve the overall quality and robustness of the code.
+;; TODO
 ;; - Extract and generalise the parsing of the jsown objects received as input.  Currently this is
 ;;   rather ad-hoc and fragile.
 ;; - Convert the full URIs in replied to prefixed ones where possible.  This will make any
@@ -279,6 +274,20 @@ TYPE should be a string containing a uri for a resource type."
 ;;
 ;; Conversion to ODRL
 ;;
+(define-condition no-data-for-mandatory-slots-error (error)
+  ((uri :initarg :uri :reader uri)
+   (slots :initarg :slots :reader slots))
+  (:report (lambda (c s)
+             (format s "Missing data in resource \"~a\" for mandatory slot(s): ~{~a~^, ~}" (uri c) (slots c))))
+  (:documentation "Error condition to signal there was not enough data to correctly instantiate an ODRL or SHACL object instance from some resource."))
+
+(defmacro with-mandatory-slots (uri (&rest slot-data-alist) &body body)
+  "Signal a `no-data-for-mandatory-slots-error' condition if any pair in SLOT-DATA-ALIST has nil as datum, otherwise evaluate BODY."
+  `(let ((empty-slots (flatten (remove-if #'cdr ,slot-data-alist))))
+     (if (emptyp empty-slots)
+       (progn ,@body)
+       (error 'no-data-for-mandatory-slots-error :uri ,uri :slots empty-slots))))
+
 (defun find-concept-with-uri (uri concepts)
   "Find the concept instance in CONCEPTS that has URI as value for its uri slot."
   (when uri
@@ -296,14 +305,16 @@ TYPE should be a string containing a uri for a resource type."
 (defun make-rule-set (uri triples)
   "Make an `odrl:rule-set' instance for the resource with URI."
   (let ((asset-collections (make-asset-collections triples))
-        (party-collections (make-party-collections triples)))
-    (make-instance
-     'odrl:rule-set
-     :uri uri
-     :rules (mapcar
-             (lambda (permission)
-               (make-permission permission asset-collections party-collections triples))
-             (list-permissions-in-policy triples)))))
+        (party-collections (make-party-collections triples))
+        (permissions (list-permissions-in-policy triples)))
+    (with-mandatory-slots uri `((rules . ,permissions))
+      (make-instance
+       'odrl:rule-set
+       :uri uri
+       :rules (mapcar
+               (lambda (permission)
+                 (make-permission permission asset-collections party-collections triples))
+               permissions)))))
 
 (defun make-party-collections (triples)
   "Make an `odrl:party-collection' for each party collection resource in TRIPLES."
@@ -318,14 +329,15 @@ TYPE should be a string containing a uri for a resource type."
          (description (first-value-for-predicate (predicate-uri :dcterms-description) triples))
          (parameters (triples-for-predicate (predicate-uri :ext-query-parameters) triples))
          (query (first-value-for-predicate (predicate-uri :ext-defined-by) triples)))
-    (make-instance
-     'odrl:party-collection
-     :uri uri
-     :name name
-     :description description
-     :parameters (mapcar #'triple-object-value parameters)
-     ;; TODO(B): this escaping should probably be applied to all strings
-     :query (when query (cl-ppcre:regex-replace-all "\"" query "\\\"")))))
+    (with-mandatory-slots uri `((name . ,name))
+      (make-instance
+       'odrl:party-collection
+       :uri uri
+       :name name
+       :description description
+       :parameters (mapcar #'triple-object-value parameters)
+       ;; TODO(B): this escaping should probably be applied to all strings
+       :query (when query (cl-ppcre:regex-replace-all "\"" query "\\\""))))))
 
 (defun make-asset-collections (triples)
   "Make an `odrl:asset-collection' for each asset collection resource in TRIPLES."
@@ -341,15 +353,16 @@ TYPE should be a string containing a uri for a resource type."
          (description (first-value-for-predicate (predicate-uri :dcterms-description) triples))
          (graph (first-value-for-predicate (predicate-uri :ext-graph-prefix) triples))
          (assets-in-collection (list-parts-in-collection uri policy-triples)))
-    (make-instance
-     'odrl:asset-collection
-     :uri uri
-     :name name
-     :description description
-     :graph graph
-     :assets (mapcar
-              (lambda (uri) (find-shape-with-uri uri assets))
-              assets-in-collection))))
+    (with-mandatory-slots uri `((name . ,name) (graph . ,graph))
+      (make-instance
+       'odrl:asset-collection
+       :uri uri
+       :name name
+       :description description
+       :graph graph
+       :assets (mapcar
+                (lambda (uri) (find-shape-with-uri uri assets))
+                assets-in-collection)))))
 
 (defun make-node-shapes (triples)
   "Make a `shacl:node-shape' instance for each ODRL asset resource in triples."
@@ -398,11 +411,11 @@ TYPE should be a string containing a uri for a resource type."
 
 (defun make-property-path (uri policy-triples)
   "Make a `shacl:property-path' instance for the resource with URI."
-  (let ((triple (first-triple-for-resource uri policy-triples)))
-    (make-instance
-     'shacl:property-path
-     :predicate-path (triple-predicate-value triple)
-     :object (triple-object-value triple))))
+  (let* ((triple (first-triple-for-resource uri policy-triples))
+         (path (triple-predicate-value triple))
+         (object (triple-object-value triple)))
+    (with-mandatory-slots uri `((property-path . ,path))
+      (make-instance 'shacl:property-path :predicate-path path :object object))))
 
 (defun make-permission (uri asset-col party-col policy-triples)
   "Make an `odrl:permission' instance for the resource with URI.
@@ -417,12 +430,13 @@ ASSET-COL and PARTY-COL should be lists of, respectively, `odrl:asset-collection
          (assignee (find-concept-with-uri
                     (first-value-for-predicate (predicate-uri :odrl-assignee) triples)
                     party-col)))
-    (make-instance
-     'odrl:permission
-     :uri uri
-     :action (make-action action)
-     :target target
-     :assignee assignee)))
+    (with-mandatory-slots uri `((action . ,action) (target . ,target) (assignee . ,assignee))
+      (make-instance
+       'odrl:permission
+       :uri uri
+       :action (make-action action)
+       :target target
+       :assignee assignee))))
 
 (defun make-action (uri)
   "Make an `odrl:action' instance for the given URI."
