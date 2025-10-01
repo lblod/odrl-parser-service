@@ -22,12 +22,12 @@ image."
 (hunchentoot:define-easy-handler (load-policy :uri "/load-policy") ()
   (setf (hunchentoot:content-type*) "text/plain")
   (load-policy-file)
-  (format nil "~& >> Loaded policy from 'config.nt'"))
+  (format t "~& >> Loaded policy from 'config.nt'"))
 
 (hunchentoot:define-easy-handler (generate-config :uri "/generate-config") (policy-name)
   (setf (hunchentoot:content-type*) "text/plain")
   (generate-authorisation-configuration policy-name)
-  (format nil "~& >> Generated authorisation configurations"))
+  (format t "~& >> Generated authorisation configurations"))
 
 (defun extract-filename (uri)
   "Extract a file name from the given uri."
