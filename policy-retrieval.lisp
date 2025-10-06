@@ -2,26 +2,6 @@
 
 ;; Functionality to read ODRL policies form the backend an convert them to the service's internal
 ;; ODRL model.
-;;
-;; TODO
-;; - Extract and generalise the parsing of the jsown objects received as input.  Currently this is
-;;   rather ad-hoc and fragile.
-;; - Convert the full URIs in replied to prefixed ones where possible.  This will make any
-;;   configuration that is eventually generated from the data easier to read.
-
-;; Add the used prefixes
-(add-prefix "ext" "http://mu.semte.ch/vocabularies/ext/")
-(add-prefix "odrl" "http://www.w3.org/ns/odrl/2/")
-(add-prefix "dct" "http://purl.org/dc/terms/")
-(add-prefix "vcard" "http://www.w3.org/2006/vcard/ns#")
-(add-prefix "rdf" "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-(add-prefix "mandaat" "http://data.vlaanderen.be/ns/mandaat#")
-(add-prefix "skos" "http://www.w3.org/2004/02/skos/core#")
-(add-prefix "sh" "http://www.w3.org/ns/shacl#")
-(add-prefix "lmb" "http://lblod.data.gift/vocabularies/lmb/")
-(add-prefix "besluit" "http://data.vlaanderen.be/ns/besluit#")
-(add-prefix "regorg" "http://www.w3.org/ns/regorg#")
-(add-prefix "persoon" "http://data.vlaanderen.be/ns/persoon#")
 
 (defparameter predicates-plist
   '(:dcterms-description "http://purl.org/dc/terms/description"

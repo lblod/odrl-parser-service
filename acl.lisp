@@ -5,10 +5,12 @@
 ;; This defines classes that roughly correspond to the concepts defined by sparql-parser's
 ;; configuration interface.
 
-;; TODO(B): A configuration typically also contains a `define-prefixes' entry, should be generated from graph specifications
 ;; TODO(C): There typically is also some (fairly) standard boiler plate to configure the service instance (setting some variables to appropriate values, logging, etc.)
 (defclass configuration ()
-  ((groups :initarg :groups
+  ((prefixes :initarg :prefixes
+             :initform nil
+             :accessor prefixes)
+   (groups :initarg :groups
            :initform '()
            :accessor groups)
    (graphs :initarg :graphs
@@ -18,6 +20,10 @@
            :accessor grants
            :initform '()))
   (:documentation "A configuration for the sparql-parser service consisting of a set of groups, graph specifications, and grants linking them."))
+
+(defmethod initialize-instance :after ((configuration configuration) &key)
+  (unless (slot-value configuration 'prefixes)
+    (setf (slot-value configuration 'prefixes) (fuseki:get-prefix-alist))))
 
 (defclass entity ()
   ((description :type (or null string) :initarg :description :initform nil))
@@ -160,6 +166,26 @@ simply be down cased."
           (push entity (grants configuration))
           entity))))
 
+(defun prefix-uri (uri)
+  "Return a prefixed version of URI if a suitable prefix is known, otherwise return URI.
+
+The \"known\" prefixes are those returned by `fuseki:get-prefix-alist'."
+  (let* ((prefixes (fuseki:get-prefix-alist))
+         ;; NOTE (06/10/2025): Need to invert the order of arguments used in the `search' function
+         ;; as we a looking for a cell whose cdr is a prefix of URI.
+         (prefix (rassoc uri prefixes :test (lambda (u p) (search p u)))))
+    (if prefix
+        (let ((cl-ppcre:*allow-quoting* t))
+          ;; NOTE (06/10/2025): We quote the regex to disable metacharacters as we want to replace
+          ;; literal strings.
+          (cl-ppcre:regex-replace
+           (concatenate 'string "\\Q" (cdr prefix))
+           uri
+           ;; NOTE (06/10/2025): This is made into list with a single string to ensure the
+           ;; replacement is inserted verbatim.
+           `(,(concatenate 'string (car prefix) ":"))))
+        uri)))
+
 ;;
 ;; Printing objects
 ;;
@@ -168,12 +194,25 @@ simply be down cased."
 ;; everywhere, irrelevant of whether we are, for example, writing to a file or the printing error
 ;; messages.
 (defmethod print-object ((object configuration) stream)
-  (with-slots (graphs groups grants) object
+  (with-slots (prefixes graphs groups grants) object
     (format stream
-            ";; Graphs~&~{~a~^~&~}~%;; Groups~&~{~a~^~&~}~%;; Grants~&~{~a~^~&~}"
+            "~&(in-package :acl)~%~%~a~&~%;; Graphs~&~{~a~^~&~}~%;; Groups~&~{~a~^~&~}~%;; Grants~&~{~a~^~&~}"
+            (format-prefixes prefixes)
             graphs
             groups
             grants)))
+
+(defun format-prefix (prefix)
+  "Format the cons cell PREFIX as plist property-value pair."
+  (format nil ":~a \"~a\"" (car prefix) (cdr prefix)))
+
+(defun format-prefixes (prefixes)
+  "Format each element in PREFIXES as plist property-value pairs."
+  (if (> (length prefixes) 0)
+      (format nil
+              "(define-prefixes~%~{~2t~a~^~&~})"
+              (mapcar #'format-prefix prefixes))
+      ""))
 
 (defmethod print-object ((object group) stream)
   (with-slots (description name query parameters) object
@@ -197,12 +236,12 @@ simply be down cased."
   (with-slots (resource-type predicates) object
     (format stream
             "~&~2t(\"~a\" ~:[-> _~;~:*~{~a~^~&~4t~}~])"
-            resource-type
+            (prefix-uri resource-type)
             predicates)))
 
 (defmethod print-object ((object predicate-spec) stream)
   (with-slots (direction predicate) object
-    (format stream "~a ~:[_~;~:*\"~a\"~]" direction predicate)))
+    (format stream "~a ~:[_~;~:*\"~a\"~]" direction (prefix-uri predicate))))
 
 (defmethod print-object ((object grant) stream)
   (with-slots (right graph group) object

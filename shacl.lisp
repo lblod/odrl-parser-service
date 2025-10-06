@@ -84,12 +84,13 @@ The special uri was introduced to allow user to specify \"all predicates\" in a 
 ;;
 (defmethod print-object ((shape node-shape) stream)
   (print-unreadable-object (shape stream)
-    (with-slots (uri properties notp) shape
+    (with-slots (uri target-class properties notp) shape
       (format
        stream
-       "~a <~a>~&~2t<inverse: ~a>~&~2t<properties:~&~{~4t~a~&~}>"
+       "~a <~a>~&~2t<target: ~a>~&~2t<inverse: ~a>~&~2t<properties:~&~{~4t~a~&~}>"
        (type-of shape)
        uri
+       target-class
        notp
        properties))))
 
