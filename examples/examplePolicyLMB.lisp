@@ -1,26 +1,48 @@
+(in-package :acl)
+
+(define-prefixes
+  :persoon "http://data.vlaanderen.be/ns/persoon#"
+  :regorg "http://www.w3.org/ns/regorg#"
+  :besluit "http://data.vlaanderen.be/ns/besluit#"
+  :lmb "http://lblod.data.gift/vocabularies/lmb/"
+  :sh "http://www.w3.org/ns/shacl#"
+  :skos "http://www.w3.org/2004/02/skos/core#"
+  :mandaat "http://data.vlaanderen.be/ns/mandaat#"
+  :rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  :vcard "http://www.w3.org/2006/vcard/ns#"
+  :dct "http://purl.org/dc/terms/"
+  :odrl "http://www.w3.org/ns/odrl/2/"
+  :ext "http://mu.semte.ch/vocabularies/ext/"
+  :rm "http://mu.semte.ch/vocabularies/logical-delete/"
+  :typedLiterals "http://mu.semte.ch/vocabularies/typed-literals/"
+  :mu "http://mu.semte.ch/vocabularies/core/"
+  :xsd "http://www.w3.org/2001/XMLSchema#"
+  :app "http://mu.semte.ch/app/"
+  :owl "http://www.w3.org/2002/07/owl#")
+
 ;; Graphs
 ;; This asset collection contains all information that is available to the public in the context of the LMB app.
 (define-graph public ("http://mu.semte.ch/graphs/public")
-  ("http://www.w3.org/2004/02/skos/core#ConceptScheme" -> "http://www.w3.org/2004/02/skos/core#prefLabel"
-    -> "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-    -> "http://www.w3.org/2004/02/skos/core#inScheme")
-  ("http://www.w3.org/2004/02/skos/core#Concept" <- "http://www.w3.org/ns/regorg#orgStatus"
-    <- "http://lblod.data.gift/vocabularies/lmb/InstallatievergaderingStatus")
-  ("http://mu.semte.ch/vocabularies/ext/GeslachtCode" -> _)
-  ("http://data.vlaanderen.be/ns/besluit#Bestuurseenheid" <- _))
+  ("skos:ConceptScheme" -> "skos:prefLabel"
+    -> "rdf:type"
+    -> "skos:inScheme")
+  ("skos:Concept" <- "regorg:orgStatus"
+    <- "lmb:InstallatievergaderingStatus")
+  ("ext:GeslachtCode" -> _)
+  ("besluit:Bestuurseenheid" <- _))
 
 ;; This asset collection contains all information that is available to all authenticated users in the context of the LMB app.
 (define-graph view-only-modules ("http://mu.semte.ch/graphs/authenticated/public")
-  ("http://data.vlaanderen.be/ns/besluit#Bestuurseenheid" -> "http://mu.semte.ch/vocabularies/ext/viewOnlyModules"))
+  ("besluit:Bestuurseenheid" -> "ext:viewOnlyModules"))
 
 ;; This asset collection contains all information that is available to users with the LoketLB-mandaatGebruiker role in the context of the LMB app.
 (define-graph organization-mandatendatabank ("http://mu.semte.ch/graphs/organizations/")
-  ("http://data.vlaanderen.be/ns/mandaat#Fractie" -> _)
-  ("http://data.vlaanderen.be/ns/mandaat#Mandataris" -> _)
-  ("http://data.vlaanderen.be/ns/persoon#Persoon" x> "http://data.vlaanderen.be/ns/persoon#registratie")
-  ("http://data.vlaanderen.be/ns/persoon#Persoon" <x "http://data.vlaanderen.be/ns/mandaat#isBestuurlijkeAliasVan")
-  ("http://data.vlaanderen.be/ns/persoon#Persoon" x> "http://data.vlaanderen.be/ns/persoon#heeftGeboorte"
-    x> "http://data.vlaanderen.be/ns/persoon#registratie"))
+  ("mandaat:Fractie" -> _)
+  ("mandaat:Mandataris" -> _)
+  ("persoon:Persoon" x> "persoon:registratie")
+  ("persoon:Persoon" <x "mandaat:isBestuurlijkeAliasVan")
+  ("persoon:Persoon" x> "persoon:heeftGeboorte"
+    x> "persoon:registratie"))
 
 
 ;; Groups
