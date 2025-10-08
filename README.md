@@ -27,13 +27,45 @@ Any generated configuration files are written to the mounted volume. As filename
 ## Local development
 In contrast to most other mu-services this service is not developed based on a template, since there is currently no common lisp template available. Consequently, developing this service currently requires a bit more setup than usual. Currently, the major differences are:
 
-- live-reloading is *not* supported;
+- support for is live-reloading is *experimental*;
 - the services does *not* come with a web framework, one will be added when the need arises; and
 - it does not come with the usual helpers. Instead its functionality to interact with a triplestore was copied from [mu-cl-resources](https://github.com/mu-semtech/mu-cl-resources) and relies on [mu-cl-support](https://github.com/mu-semtech/mu-cl-support).
 
-Given these limitations the most convenient way to develop on this service is to do so in a project-local REPL using
-- [qlot](https://github.com/fukamachi/qlot) to manage the project's dependencies, and
-- [docker-forward](https://github.com/madnificent/docker-forward) to forward requests to a running stack.
+Given these limitations there are two main options for local development:
+1. Run the service in a docker container using live reloading to restart the REPL after changes. This is the easiest to set up, but since the REPL is fully restarted after a change it does not have the usual flexibility.
+2. Run the service in a project-local REPL on your host machine and forward its requests to a running stack. This is harder to setup, but has the advantage you can develop and interact with the REPL as usual.
+
+### REPL in container using live reload
+:warning: The live reload functionality is currently highly experimental. Please report any problems encountered. Suggestions for improvements are always welcome.
+
+The live reloading functionality will restart a container's REPL whenever a `.lisp`, `.asd`, or `.lock` file changes. To enable live reloading set the service's `MODE` environment variable to `"development"`` and mount the project's folder as volume for the service.
+
+```yaml
+odrl-parser:
+  environment:
+    MODE: "development"
+  volumes:
+    - /host/path/to/odrl-parser-service/project/:/app/
+```
+
+This project uses [qlot](https://github.com/fukamachi/qlot) to manage its dependencies. You can either install qlot on your host machine following their [README's instructions](https://github.com/fukamachi/qlot?tab=readme-ov-file#installation), or manage dependencies within the service container using the qlot instance installed installed there.
+If you installed qlot on your host machine you can use `qlot add PKG-NAME` in the project's root folder to install new dependencies. This command will add entries to the `qlfile` and `qlfile.lock` files. Changes to the latter fill will trigger live reloading, thereby making the installed dependency available in the container's REPL.
+Alternatively, you can manage dependencies from within the container. To do this, open a shell in the container and `cd` to the `/app` directory. There you can use `qlot` to install additional packages:
+
+```shell
+# On the host
+$ docker compose exec odrl-parser bash
+# In the container
+$ cd /app
+$ qlot add PKG-NAME
+```
+
+Same as using `qlot` on you host, the `qlot add` command will update `qlfile` and `qlfile.lock` files, triggering live reload.
+
+### Project-local REPL on host and forwarding
+In order to develop this service fully on your host machine you will need to set up a project-local REPL and forward its request to a running stack. This requires installing [qlot](https://github.com/fukamachi/qlot) to manage the project's dependencies and adding [docker-forward](https://github.com/madnificent/docker-forward) to a stack to forward requests to is.
+
+To install `qlot` consult the [instructions](https://github.com/fukamachi/qlot?tab=readme-ov-file#installation) in their README. Make sure your the `qlot` binary is accessible by your editor, as it will be necessary to start a project-local REPL.
 
 Step by step instructions:
 - Clone this repository and `cd` to its directory.
@@ -58,6 +90,3 @@ Note that `8896` is the host port from which the service will send requests for 
 The files in the `tests` folder provide some, rudimentary, functionality to simplify manually testing parts of the service. Each file provides functions to create object instances for the different classes defined by this service. These can be used to manually test individual steps in the conversion flow.
 
 Note, these files are not **not** automatically loaded and their functions are **not** exported. Before using these functions, make sure to load the file(s) in question.
-
-
-[^1]: Consult [qlot](https://github.com/fukamachi/qlot) for more information on how to install `qlot` and how it works. Important, make sure your the `qlot` binary is accessible by your editor.

@@ -3,7 +3,7 @@
   :description "Load and parse ODRL policies in a semantic.works stack."
   :version "0.0.1"
   :license "MIT"
-  :depends-on (mu-support cl-fuseki dexador cl-ntriples)
+  :depends-on (mu-support cl-fuseki dexador cl-ntriples trivial-signal)
   :components ((:file packages)
                (:file settings)
                (:file policy-retrieval)

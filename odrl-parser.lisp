@@ -1,5 +1,12 @@
 (in-package :odrl-parser)
 
+(defun exit-on-signal (signo)
+  (format t "~& ; Received signal ~a~%" (trivial-signal:signal-name signo))
+  (sb-ext:exit))
+
+;; NOTE (09/10/2025): For some reason SIGUSR2 does not seem to work
+(setf (trivial-signal:signal-handler :usr1) #'exit-on-signal)
+
 (defun boot ()
   "Function called when the service boots.
 
