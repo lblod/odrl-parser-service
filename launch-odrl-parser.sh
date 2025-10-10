@@ -14,7 +14,7 @@ then
          --shell=none \
          --wrap-process=none \
          --restart \
-         /app/scripts/run-development.sh
+         /usr/src/run-development.sh
 else
     # Adapted from base image's startup.sh
     CMD_OPTS=""

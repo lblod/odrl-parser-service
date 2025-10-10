@@ -18,8 +18,10 @@ RUN curl -L https://qlot.tech/installer | sh
 
 COPY ./launch-odrl-parser.sh /
 
+# NOTE: these scripts should be provided by a proper template's base image
 # Replace base image's startup script with our customised one
-COPY ./scripts/startup.lisp /usr/src/startup.lisp
+COPY ./scripts/startup.lisp /usr/src/
+COPY ./scripts/run-development.sh /usr/src/
 
 COPY . /app
 
