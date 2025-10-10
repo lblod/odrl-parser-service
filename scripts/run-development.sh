@@ -21,4 +21,6 @@ then
     echo "sbcl $CMD_OPTS --load /usr/src/startup.lisp"
 fi
 
+# exec will replace this script's process with the qlot/sbcl process, allowing
+# the latter to receive the SIGUSR1 signal to exit
 exec qlot exec sbcl $CMD_OPTS --load /usr/src/startup.lisp
