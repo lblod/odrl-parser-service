@@ -18,6 +18,9 @@ RUN curl -L https://qlot.tech/installer | sh
 
 COPY ./launch-odrl-parser.sh /
 
+# Replace base image's startup script with our customised one
+COPY ./scripts/startup.lisp /usr/src/startup.lisp
+
 COPY . /app
 
 # qlot commands must be run in folder with .qlfile
