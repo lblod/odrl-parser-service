@@ -1,5 +1,7 @@
 # Changelog
 ## Unreleased
+### Changed
+- Revised docker configuration to support live reloading [LBRON-488]
 
 ## v0.0.2 (2025-10-07)
 ### Changed
