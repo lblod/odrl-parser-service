@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Adapted from script in mu-javascript-template <https://github.com/mu-semtech/mu-javascript-template/blob/master/run-development.sh>
-
 echo "Watchexec triggered me!"
 
 # (Re)Launch REPL
