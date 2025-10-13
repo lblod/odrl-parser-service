@@ -1,7 +1,6 @@
 FROM madnificent/lisp-webservice:0.6.0
 
-RUN apt-get update; apt-get upgrade -y; apt-get install -y curl
-
+RUN apt-get update; apt-get upgrade -y; apt-get install -y curl gcc
 
 ARG TARGETPLATFORM
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
@@ -19,6 +18,11 @@ RUN echo "Installing qlot"; \
     cd /tmp/ && wget https://github.com/fukamachi/qlot/releases/download/1.7.2/qlot-1.7.2.tar.gz && tar xfz qlot-1.7.2.tar.gz && cd qlot && scripts/setup.sh && scripts/install.sh
 
 COPY ./launch-odrl-parser.sh /
+
+# NOTE: these scripts should be provided by a proper template's base image
+# Replace base image's startup script with our customised one
+COPY ./scripts/startup.lisp /usr/src/
+COPY ./scripts/run-development.sh /usr/src/
 
 COPY . /app
 

@@ -1,5 +1,18 @@
 (in-package :odrl-parser)
 
+(defun exit-on-signal (signo)
+  "Execute `sb-ext:exit' upon receiving SIGNO.
+
+This allows to cleanly exit the repl when live reloading is used during development."
+  (format t "~& ; Received signal ~a~%" (trivial-signal:signal-name signo))
+  (sb-ext:exit))
+
+;; When receiving the SIGUSR1 signal execute `exit-on-signal'. Watchexec is configured to send the
+;; SIGUSR1 signal as stop signal. This allows to immediately and cleanly exit the REPL an restart it
+;; after a source file was changed.
+(setf (trivial-signal:signal-handler :usr1) #'exit-on-signal)
+
+
 (defun boot ()
   "Function called when the service boots.
 
