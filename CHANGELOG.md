@@ -1,6 +1,10 @@
 # Changelog
 ## Unreleased
 
+## v0.0.4 (2025-12-08)
+### Changed
+- Load prefixes from a configuration file ([#6](https://github.com/lblod/odrl-parser-service/pull/6))
+
 ## v0.0.3 (2025-10-15)
 ### Changed
 - Revised docker configuration to support live reloading ([#5](https://github.com/lblod/odrl-parser-service/pull/5)) [LBRON-488]
