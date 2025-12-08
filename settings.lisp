@@ -1,39 +1,9 @@
 (in-package :odrl-parser)
 
 ;; Sparql
-;; Add the used prefixes
-;; TODO(A): The necessary prefixes should be read from the policy ttl files to avoid having to update
-;; the service for policies using other prefixes. Such functionality should be added to
-;; `configuration-parssing.lisp' once the service loads ttl files instead of ntriples files.
-(add-prefix "ext" "http://mu.semte.ch/vocabularies/ext/")
+;; Add prefixes used by this service
 (add-prefix "odrl" "http://www.w3.org/ns/odrl/2/")
-(add-prefix "dct" "http://purl.org/dc/terms/")
-(add-prefix "vcard" "http://www.w3.org/2006/vcard/ns#")
-(add-prefix "rdf" "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-(add-prefix "mandaat" "http://data.vlaanderen.be/ns/mandaat#")
-(add-prefix "skos" "http://www.w3.org/2004/02/skos/core#")
 (add-prefix "sh" "http://www.w3.org/ns/shacl#")
-(add-prefix "lmb" "http://lblod.data.gift/vocabularies/lmb/")
-(add-prefix "besluit" "http://data.vlaanderen.be/ns/besluit#")
-(add-prefix "regorg" "http://www.w3.org/ns/regorg#")
-(add-prefix "persoon" "http://data.vlaanderen.be/ns/persoon#")
-(add-prefix "cms" "http://mu.semte.ch/vocabulary/cms/")
-(add-prefix "cogs" "http://vocab.deri.ie/cogs#")
-(add-prefix "core" "http://open-services.net/ns/core#")
-(add-prefix "dcat" "http://www.w3.org/ns/dcat#")
-(add-prefix "eli" "http://data.europa.eu/eli/ontology#")
-(add-prefix "eli-dl" "http://data.europa.eu/eli/eli-draft-legislation-ontology#")
-(add-prefix "harvesting" "http://lblod.data.gift/vocabularies/harvesting/")
-(add-prefix "foaf" "http://xmlns.com/foaf/0.1/")
-(add-prefix "ndo" "http://oscaf.sourceforge.net/ndo.html#")
-(add-prefix "nfo" "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#")
-(add-prefix "schema" "http://schema.org/")
-(add-prefix "oparl-temp" "http://mu.semte.ch/vocabularies/ext/oparl/")
-(add-prefix "org" "http://www.w3.org/ns/org#")
-(add-prefix "security" "http://lblod.data.gift/vocabularies/security/")
-(add-prefix "tasks" "http://redpencil.data.gift/vocabularies/tasks/")
-(add-prefix "vcard" "http://www.w3.org/2006/vcard/ns#")
-(add-prefix "wot" "https://www.w3.org/2019/wot/security#")
 
 (defparameter sparql:*application-graph*
   (s-url (or (uiop:getenv "ODRL_POLICY_GRAPH")

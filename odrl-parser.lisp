@@ -35,6 +35,7 @@ image."
 (hunchentoot:define-easy-handler (load-policy :uri "/load-policy") ()
   (setf (hunchentoot:content-type*) "text/plain")
   (load-policy-file)
+  (load-prefixes-from-file)
   (format t "~& >> Loaded policy from 'config.nt'"))
 
 (hunchentoot:define-easy-handler (generate-config :uri "/generate-config") (policy-name)

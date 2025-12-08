@@ -70,3 +70,39 @@
 
 (defun escape-uri (uri)
   (s-url uri))
+
+
+;; NOTE (05/12/2025): The following functionality load a set of prefixes from a ttl file. The
+;; assumption is that the ntriples file read with above functionality was generated from the ttl
+;; file with the same name, and that this ttl file thus contains all necessary prefixes (or at least
+;; those the author deemed appropriate to define). This is a bit of a hacky way to get the necessary
+;; prefixes without hardcoding them in the service. In the future this service should be able to
+;; just read a policy from a ttl file instead of an ntriples file and thus get the "right" prefixes
+;; along with that.
+(defparameter *prefixes-file*
+  (cl-ppcre:regex-replace "\\.nt$" *policy-file* ".ttl")
+  "The file to read the needed prefixes from.")
+
+(defparameter prefix-declaration-regex
+  "@prefix +([a-zA-Z0-9_-]+): +<([a-zA-Z0-9:/#-_]+)> *\."
+  "A regex for prefix declarations in TTl.
+
+Warning: this regex is *not* compliant with the TTL standard.  For example, it does not cover all
+allowed characters and allows invalid start characters.")
+
+(defun read-prefixes-from-file ()
+  "Read `*prefix-file*' and return its prefix declarations as a list of strings."
+  (let ((path (asdf:system-relative-pathname :odrl-parser *prefixes-file*)))
+    (cl-ppcre:all-matches-as-strings
+     prefix-declaration-regex
+     ;; TODO: First check whether file exists
+     (alexandria:read-file-into-string path))))
+
+(defun append-prefix-for-declaration (declaration)
+  "Extract the prefix label and iri from DECLARATION and use them as arguments for `add-prefix.'"
+  (cl-ppcre:register-groups-bind (label iri) (prefix-declaration-regex declaration)
+    (add-prefix label iri)))
+
+(defun load-prefixes-from-file ()
+  "Read all prefixes declared in a config file and register them using `add-prefix'."
+  (mapcar #'append-prefix-for-declaration (read-prefixes-from-file)))

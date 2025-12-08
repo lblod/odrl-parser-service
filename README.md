@@ -16,7 +16,7 @@ odrl-parser
 
 ## API
 ### `GET /load-policy`
-Insert the triples for the ODRL policy defined in `config/config.nt` into the backend's triplestore.
+Insert the triples for the ODRL policy defined in `config/config.nt` into the backend's triplestore. Furthermore, this will read any prefixes declared in `config/config.ttl` and register these in the service. The underlying assymption is that the ntriples file was generated from the ttl file.
 
 ### `GET /generate-config[?policy-name=NAME]`
 Generate the sparql-parser configuration for a stored ODRL policy `NAME`. Here `NAME` should be the last past of the URI of a `odrl:Set` resource. If no policy name is provided the service will generate a configuration for each `odrl:Set` resource it finds in the database.
