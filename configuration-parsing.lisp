@@ -11,7 +11,6 @@
       "examples/config-simplified.nt")
   "The file to read the ODRL policy from.")
 
-;; TODO(C): load on service start?
 (defun load-policy-file ()
   "Load the ODRL policy from `*policy-file*' and insert the triples in the triplestore."
   (let* ((string-content (read-ntriples-file))
@@ -23,7 +22,9 @@
 (defun read-ntriples-file ()
   "Read the n-triples file `*policy-file*' and return its contents as a single string."
   (let ((path (asdf:system-relative-pathname :odrl-parser *policy-file*)))
-    (alexandria:read-file-into-string path)))
+    (if (probe-file path)
+        (alexandria:read-file-into-string path)
+        (error "Canot find the file to read the policy from: ~A" path))))
 
 ;; Functions to convert the triples returned by cl-ntriples parsing to plain strings that can be
 ;; used in the body of a SPARQL insert statement.
@@ -93,10 +94,13 @@ allowed characters and allows invalid start characters.")
 (defun read-prefixes-from-file ()
   "Read `*prefix-file*' and return its prefix declarations as a list of strings."
   (let ((path (asdf:system-relative-pathname :odrl-parser *prefixes-file*)))
-    (cl-ppcre:all-matches-as-strings
-     prefix-declaration-regex
-     ;; TODO: First check whether file exists
-     (alexandria:read-file-into-string path))))
+    (if (probe-file path)
+        (progn
+          (cl-ppcre:all-matches-as-strings
+           prefix-declaration-regex
+           (alexandria:read-file-into-string path))
+          (format t "~& Loaded prefixes from ~A" path))
+        (format t "~& >> WARN: could not find a file to load prefixes from: ~A" path))))
 
 (defun append-prefix-for-declaration (declaration)
   "Extract the prefix label and iri from DECLARATION and use them as arguments for `add-prefix.'"
