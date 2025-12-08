@@ -4,28 +4,30 @@
 ;;
 ;; Read an ODRL policy specified as n-triples in a file and insert the triples into the backend.
 
-;; TODO(B): Make exact policy file configurable
-(defparameter *policy-file*
-  (if (find :docker *features*)
-      "../config/config.nt"
-      "examples/config-simplified.nt")
-  "The file to read the ODRL policy from.")
+(defun policy-file (&optional filename)
+  "Get the path to the file to read the ODRL policy from.
 
-(defun load-policy-file ()
-  "Load the ODRL policy from `*policy-file*' and insert the triples in the triplestore."
+If FILENAME is nil, fall back to the \"config\" as default name for the policy file."
+  (if (find :docker *features*)
+      (concatenate 'string "../config/" (or filename "config") ".nt")
+      "examples/config-simplified.nt"))
+
+(defun load-policy-file (&optional filename)
+  "Load the ODRL policy from `policy-file' and insert the triples in the triplestore."
   (handler-case
-      (let* ((string-content (read-ntriples-file))
+      (let* ((path (policy-file filename))
+             (string-content (read-ntriples-file path))
              (parsed-content (nt:parse-nt string-content))
              (triples (mapcar #'triple-to-string parsed-content)))
         ;; TODO(C): look into usage of `without-update-group' macro
         (sparql:insert (apply #'concatenate 'string triples))
-        (format t "~& >> INFO: Loaded policy from ~A" *policy-file*))
+        (format t "~& >> INFO: Loaded policy from ~A" path)
     (error (e)
-      (format t "~& >> WARN: An error occurred when trying to read the configuration file: \"~A\"" e))))
+      (format t "~& >> WARN: An error occurred when trying to read the configuration file: ~% >>>> '~A'~%" e))))
 
-(defun read-ntriples-file ()
-  "Read the n-triples file `*policy-file*' and return its contents as a single string."
-  (let ((path (asdf:system-relative-pathname :odrl-parser *policy-file*)))
+(defun read-ntriples-file (path)
+  "Read the n-triples file `policy-file' and return its contents as a single string."
+  (let ((path (asdf:system-relative-pathname :odrl-parser path)))
     (alexandria:read-file-into-string path)))
 
 ;; Functions to convert the triples returned by cl-ntriples parsing to plain strings that can be
@@ -82,9 +84,9 @@
 ;; prefixes without hardcoding them in the service. In the future this service should be able to
 ;; just read a policy from a ttl file instead of an ntriples file and thus get the "right" prefixes
 ;; along with that.
-(defparameter *prefixes-file*
-  (cl-ppcre:regex-replace "\\.nt$" *policy-file* ".ttl")
-  "The file to read the needed prefixes from.")
+(defun prefixes-file (&optional filename)
+  "Get the file to read the needed prefixes from."
+  (cl-ppcre:regex-replace "\\.nt$" (policy-file filename) ".ttl"))
 
 (defparameter prefix-declaration-regex
   "@prefix +([a-zA-Z0-9_-]+): +<([a-zA-Z0-9:/#-_]+)> *\."
@@ -102,11 +104,12 @@ allowed characters and allows invalid start characters.")
   (cl-ppcre:register-groups-bind (label iri) (prefix-declaration-regex declaration)
     (add-prefix label iri)))
 
-(defun load-prefixes-from-file ()
-  "Read all prefixes declared in a config file and register them using `add-prefix'."
+(defun load-prefixes-from-file (&optional filename)
+  "Read all prefixes declared in FILENAME and register them using `add-prefix'."
   (handler-case
-      (let ((path (asdf:system-relative-pathname :odrl-parser *prefixes-file*)))
-        (mapcar #'append-prefix-for-declaration (read-prefixes-from-file path))
-        (format t "~& INFO: Loaded prefixes from ~A" path))
+      (let* ((path (prefixes-file filename))
+             (rel-path (asdf:system-relative-pathname :odrl-parser path)))
+        (mapcar #'append-prefix-for-declaration (read-prefixes-from-file rel-path))
+        (format t "~& >> INFO: Loaded prefixes from ~A" path))
     (error (e)
-      (format t "~& >> WARN: could not find configuration file to load prefixes"))))
+      (format t "~& >> WARN: An error occurred when trying to read the prefixes from file: ~% >>>> '~A'~%" e))))

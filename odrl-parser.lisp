@@ -32,11 +32,11 @@ image."
 ;;
 ;; NOTE (13/09/2025): Over time this should probably be re-implemented using some web-framework or
 ;; something.  But for the moment this suffices.
-
-;; TODO(B): add argument to provide name for config file
-(hunchentoot:define-easy-handler (load-policy :uri "/load-policy") ()
+(hunchentoot:define-easy-handler (load-policy :uri "/load-policy") (filename)
   (setf (hunchentoot:content-type*) "text/plain")
-  (load-policy-file))
+  (load-policy-file filename))
+
+  (setf (hunchentoot:content-type*) "text/plain")
 
 (hunchentoot:define-easy-handler (generate-config :uri "/generate-config") (policy-name)
   (setf (hunchentoot:content-type*) "text/plain")
