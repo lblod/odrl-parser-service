@@ -22,6 +22,7 @@ If FILENAME is nil, fall back to the \"config\" as default name for the policy f
         ;; TODO(C): look into usage of `without-update-group' macro
         (sparql:insert (apply #'concatenate 'string triples))
         (format t "~& >> INFO: Loaded policy from ~A" path)
+        (load-prefixes-from-file filename))
     (error (e)
       (format t "~& >> WARN: An error occurred when trying to read the configuration file: ~% >>>> '~A'~%" e))))
 
@@ -86,7 +87,9 @@ If FILENAME is nil, fall back to the \"config\" as default name for the policy f
 ;; along with that.
 (defun prefixes-file (&optional filename)
   "Get the file to read the needed prefixes from."
-  (cl-ppcre:regex-replace "\\.nt$" (policy-file filename) ".ttl"))
+    (if (find :docker *features*)
+      (concatenate 'string "../config/" (or filename "config") ".ttl")
+      "examples/config-simplified.ttl"))
 
 (defparameter prefix-declaration-regex
   "@prefix +([a-zA-Z0-9_-]+): +<([a-zA-Z0-9:/#-_]+)> *\."

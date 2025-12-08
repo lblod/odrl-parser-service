@@ -22,7 +22,7 @@ Insert the triples for the ODRL policy specified in the file `config/NAME.nt`. I
 Load the prefixes declared in `config/NAME.ttl` into the service. If not `NAME` is provided, the file `config/config.ttl` is used as fallback. The service will use the loaded prefixes generated configuration files.
 
 > [!warning]
-> The loaded prefixes are **not** persisted and have to be reloaded after restarting the service. To automatically load prefixes on starting the service, declare them in `config/config.ttl`.
+> The loaded prefixes are **not** persisted and have to be reloaded after restarting the service. To automatically load prefixes on starting the service, declare them in `config/prefixes.ttl`.
 
 Note, loading prefixes has no impact on the meaning of the generated
 `sparql-parser` configurations. But they can have a positive impact on

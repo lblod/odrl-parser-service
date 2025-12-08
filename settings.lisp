@@ -1,9 +1,14 @@
 (in-package :odrl-parser)
 
 ;; Sparql
-;; Add prefixes used by this service
+;;;; The following two prefixes are relevant to any ODRL authorization policy, might as well load by
+;;;; default so they are always available in this service.
 (add-prefix "odrl" "http://www.w3.org/ns/odrl/2/")
 (add-prefix "sh" "http://www.w3.org/ns/shacl#")
+
+(defparameter *default-prefixes-file* "prefixes"
+  "The name of the file from which to try to read prefix declarations on boot.")
+
 
 (defparameter sparql:*application-graph*
   (s-url (or (uiop:getenv "ODRL_POLICY_GRAPH")

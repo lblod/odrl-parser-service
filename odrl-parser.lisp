@@ -23,7 +23,7 @@ image."
   (format t "~& >> Using port: ~a" *port*)
   (mu-support:boot)
   (format t "~& >> Loading prefixes")
-  (load-prefixes-from-file)
+  (load-prefixes-from-file *default-prefixes-file*)
   (format t "~& >> Finished boot function"))
 
 
