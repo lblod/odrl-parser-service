@@ -22,6 +22,8 @@ image."
   (format t "~& >> Using backend: ~a" *backend*)
   (format t "~& >> Using port: ~a" *port*)
   (mu-support:boot)
+  (format t "~& >> Loading prefixes")
+  (load-prefixes-from-file)
   (format t "~& >> Finished boot function"))
 
 
@@ -35,7 +37,6 @@ image."
 (hunchentoot:define-easy-handler (load-policy :uri "/load-policy") ()
   (setf (hunchentoot:content-type*) "text/plain")
   (load-policy-file)
-  (load-prefixes-from-file)
   (format t "~& >> Loaded policy from 'config.nt'"))
 
 (hunchentoot:define-easy-handler (generate-config :uri "/generate-config") (policy-name)
