@@ -42,8 +42,7 @@ image."
 
 (hunchentoot:define-easy-handler (generate-config :uri "/generate-config") (policy-name)
   (setf (hunchentoot:content-type*) "text/plain")
-  (generate-authorisation-configuration policy-name)
-  (format t "~& >> Generated authorisation configurations"))
+  (generate-authorisation-configuration policy-name))
 
 (defun extract-filename (uri)
   "Extract a file name from the given uri."
@@ -56,17 +55,19 @@ If POLICY-NAME is nil a configuration is generated for each `odrl:Set' resource 
 backend.  Each policy is written to a file in `output-directory' with the policy's name used as
 filename."
   (let ((policy-uris (if policy-name
-                         `(,(format nil "ext:~a" policy-name))
+                         `(,(format nil "ext:~A" policy-name))
                          (policy-retrieval:list-known-policies))))
     (loop
       for uri in policy-uris
       do (handler-case
-             (let ((conf (odrl:odrl-to-acl (policy-retrieval:parse-stored-policy uri))))
+             (let ((conf (odrl:odrl-to-acl (policy-retrieval:parse-stored-policy uri)))
+                   (output-file (concatenate 'string output-directory (extract-filename uri) ".lisp")))
                (with-open-file
-                 (stream
-                  (concatenate 'string output-directory (extract-filename uri) ".lisp")
-                  :direction :output
-                  :if-exists :supersede)
-               (write conf :stream stream)))
+                   (stream
+                    output-file
+                    :direction :output
+                    :if-exists :supersede)
+                 (write conf :stream stream))
+               (format t "~& >> INFO: Wrote policy to file: ~A" output-file))
            (error (e)
-             (format t "~& >> WARN: An error occurred when parsing policy \"~a\", no configuration written: \"~a\"" uri e))))))
+             (format t "~& >> WARN: An error occurred when parsing policy \"~A\", no configuration written: \"~A\"" uri e))))))
