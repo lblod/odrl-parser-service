@@ -18,6 +18,46 @@ odrl-parser
 ### `POST /load-policy[?filename=NAME]`
 Insert the triples for the ODRL policy specified in the file `config/NAME.nt`. If no `NAME` is provided, `config/config.nt` is used as fallback. The service will also look for a corresponding `config/NAME.ttl` and, if found, load any prefixes defined in that file. These prefixes are useful to improved the readability of any generated configuration files.
 
+### `POST /load-prefixes[?filename=NAME]`
+Load the prefixes declared in `config/NAME.ttl` into the service. If not `NAME` is provided, the file `config/config.ttl` is used as fallback. The service will use the loaded prefixes generated configuration files.
+
+> [!warning]
+> The loaded prefixes are **not** persisted and have to be reloaded after restarting the service. To automatically load prefixes on starting the service, declare them in `config/config.ttl`.
+
+Note, loading prefixes has no impact on the meaning of the generated
+`sparql-parser` configurations. But they can have a positive impact on
+the readability such configurations. For example, the following
+snippet could be generated when no (relevant) prefixes are loaded:
+
+``` common-lisp
+(define-graph public ("http://mu.semte.ch/graphs/public")
+  ("http://data.europa.eu/eli/eli-draft-legislation-ontology#LegislativeProcessWork" -> _)
+  ("http://www.w3.org/ns/org#Organization" -> _)
+  ("http://www.w3.org/2004/02/skos/core#Concept" -> _)
+  ("http://data.europa.eu/eli/ontology#Expression" -> _)
+  ("http://data.vlaanderen.be/ns/besluit#Bestuurseenheid" -> _))
+```
+
+With the appropriate prefixes loaded in the service the same snippet would be
+generated as follows:
+
+``` common-lisp
+(define-prefixes
+  :skos "http://www.w3.org/2004/02/skos/core#"
+  :org "http://www.w3.org/ns/org#"
+  :eli-dl "http://data.europa.eu/eli/eli-draft-legislation-ontology#"
+  :eli "http://data.europa.eu/eli/ontology#"
+  :besluit "http://data.vlaanderen.be/ns/besluit#")
+
+(define-graph public ("http://mu.semte.ch/graphs/public")
+  ("eli-dl:LegislativeProcessWork" -> _)
+  ("org:Organization" -> _)
+  ("skos:Concept" -> _)
+  ("eli:Expression" -> _)
+  ("besluit:Bestuurseenheid" -> _)
+```
+
+
 ### `GET /generate-config[?policy-name=NAME]`
 Generate the sparql-parser configuration for a stored ODRL policy `NAME`. Here `NAME` should be the last past of the URI of a `odrl:Set` resource. If no policy name is provided the service will generate a configuration for each `odrl:Set` resource it finds in the database.
 

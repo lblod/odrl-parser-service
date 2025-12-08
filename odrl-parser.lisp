@@ -36,7 +36,9 @@ image."
   (setf (hunchentoot:content-type*) "text/plain")
   (load-policy-file filename))
 
+(hunchentoot:define-easy-handler (load-prefixes :uri "/load-prefixes") (filename)
   (setf (hunchentoot:content-type*) "text/plain")
+  (load-prefixes-from-file filename))
 
 (hunchentoot:define-easy-handler (generate-config :uri "/generate-config") (policy-name)
   (setf (hunchentoot:content-type*) "text/plain")
