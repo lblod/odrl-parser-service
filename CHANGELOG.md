@@ -1,8 +1,10 @@
 # Changelog
 ## Unreleased
+### Changed
+- Improve error handling when trying to read from non-existing configuration files.
 
 ## v0.0.4 (2025-12-08)
-### Changed
+### Added
 - Load prefixes from a configuration file ([#6](https://github.com/lblod/odrl-parser-service/pull/6))
 
 ## v0.0.3 (2025-10-15)
