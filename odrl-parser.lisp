@@ -36,8 +36,7 @@ image."
 ;; TODO(B): add argument to provide name for config file
 (hunchentoot:define-easy-handler (load-policy :uri "/load-policy") ()
   (setf (hunchentoot:content-type*) "text/plain")
-  (load-policy-file)
-  (format t "~& >> Loaded policy from 'config.nt'"))
+  (load-policy-file))
 
 (hunchentoot:define-easy-handler (generate-config :uri "/generate-config") (policy-name)
   (setf (hunchentoot:content-type*) "text/plain")

@@ -13,18 +13,20 @@
 
 (defun load-policy-file ()
   "Load the ODRL policy from `*policy-file*' and insert the triples in the triplestore."
-  (let* ((string-content (read-ntriples-file))
-         (parsed-content (nt:parse-nt string-content))
-         (triples (mapcar #'triple-to-string parsed-content)))
-    ;; TODO(C): look into usage of `without-update-group' macro
-    (sparql:insert (apply #'concatenate 'string triples))))
+  (handler-case
+      (let* ((string-content (read-ntriples-file))
+             (parsed-content (nt:parse-nt string-content))
+             (triples (mapcar #'triple-to-string parsed-content)))
+        ;; TODO(C): look into usage of `without-update-group' macro
+        (sparql:insert (apply #'concatenate 'string triples))
+        (format t "~& >> INFO: Loaded policy from ~A" *policy-file*))
+    (error (e)
+      (format t "~& >> WARN: An error occurred when trying to read the configuration file: \"~A\"" e))))
 
 (defun read-ntriples-file ()
   "Read the n-triples file `*policy-file*' and return its contents as a single string."
   (let ((path (asdf:system-relative-pathname :odrl-parser *policy-file*)))
-    (if (probe-file path)
-        (alexandria:read-file-into-string path)
-        (error "Canot find the file to read the policy from: ~A" path))))
+    (alexandria:read-file-into-string path)))
 
 ;; Functions to convert the triples returned by cl-ntriples parsing to plain strings that can be
 ;; used in the body of a SPARQL insert statement.
@@ -91,16 +93,9 @@
 Warning: this regex is *not* compliant with the TTL standard.  For example, it does not cover all
 allowed characters and allows invalid start characters.")
 
-(defun read-prefixes-from-file ()
+(defun read-prefixes-from-file (file)
   "Read `*prefix-file*' and return its prefix declarations as a list of strings."
-  (let ((path (asdf:system-relative-pathname :odrl-parser *prefixes-file*)))
-    (if (probe-file path)
-        (progn
-          (cl-ppcre:all-matches-as-strings
-           prefix-declaration-regex
-           (alexandria:read-file-into-string path))
-          (format t "~& Loaded prefixes from ~A" path))
-        (format t "~& >> WARN: could not find a file to load prefixes from: ~A" path))))
+  (cl-ppcre:all-matches-as-strings prefix-declaration-regex (alexandria:read-file-into-string file)))
 
 (defun append-prefix-for-declaration (declaration)
   "Extract the prefix label and iri from DECLARATION and use them as arguments for `add-prefix.'"
@@ -109,4 +104,9 @@ allowed characters and allows invalid start characters.")
 
 (defun load-prefixes-from-file ()
   "Read all prefixes declared in a config file and register them using `add-prefix'."
-  (mapcar #'append-prefix-for-declaration (read-prefixes-from-file)))
+  (handler-case
+      (let ((path (asdf:system-relative-pathname :odrl-parser *prefixes-file*)))
+        (mapcar #'append-prefix-for-declaration (read-prefixes-from-file path))
+        (format t "~& INFO: Loaded prefixes from ~A" path))
+    (error (e)
+      (format t "~& >> WARN: could not find configuration file to load prefixes"))))
