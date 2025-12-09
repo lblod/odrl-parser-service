@@ -3,8 +3,12 @@
 ### Fixed
 - Correctly bind the policy variable in the query to retrieve policy data.
 
+### Added
+- Allow to specify a filename to load policies from. ([#7](https://github.com/lblod/odrl-parser-service/pull/7))
+- Added API function to load prefixes from a TTL file ([#7](https://github.com/lblod/odrl-parser-service/pull/7))
+
 ### Changed
-- Improve error handling when trying to read from non-existing configuration files.
+- Improve error handling when trying to read from non-existing configuration files ([#7](https://github.com/lblod/odrl-parser-service/pull/7))
 
 ## v0.0.4 (2025-12-08)
 ### Added
