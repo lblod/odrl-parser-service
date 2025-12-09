@@ -81,10 +81,10 @@
    "CONSTRUCT {
       ?s ?p ?o .
     } WHERE {
-      BIND (~a as ?policy)
       {
         SELECT DISTINCT ?s ?p ?o
         WHERE {
+          BIND (~A as ?policy)
           GRAPH <http://mu.semte.ch/graphs/odrl-policy> {
             {
               # Policy itself

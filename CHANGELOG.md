@@ -1,5 +1,8 @@
 # Changelog
 ## Unreleased
+### Fixed
+- Correctly bind the policy variable in the query to retrieve policy data.
+
 ### Changed
 - Improve error handling when trying to read from non-existing configuration files.
 
