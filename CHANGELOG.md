@@ -1,5 +1,7 @@
 # Changelog
 ## Unreleased
+
+## v0.0.5 (2025-12-09)
 ### Fixed
 - Correctly bind the policy variable in the query to retrieve policy data.
 
