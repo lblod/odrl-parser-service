@@ -18,6 +18,9 @@ odrl-parser
 ### `POST /load-policy[?filename=NAME]`
 Insert the triples for the ODRL policy specified in the file `config/NAME.nt`. If no `NAME` is provided, `config/config.nt` is used as fallback. The service will also look for a corresponding `config/NAME.ttl` and, if found, load any prefixes defined in that file. These prefixes are useful to improved the readability of any generated configuration files.
 
+> [!warning]
+> The triples in a policy file are simply inserted into the triplestore, next to any existing resources. If a policy update involved removing elements, these should be manually removed from the triplestore. This service currently does not support that.
+
 ### `POST /load-prefixes[?filename=NAME]`
 Load the prefixes declared in `config/NAME.ttl` into the service. If not `NAME` is provided, the file `config/config.ttl` is used as fallback. The service will use the loaded prefixes generated configuration files.
 
