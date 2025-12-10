@@ -42,8 +42,7 @@ ext:publicParty a odrl:PartyCollection ;
   # party, which is "no users"?
   #
   # this query matches every session and has no parameters
-  ext:definedBy """
-  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  ext:definedBy """PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
   PREFIX muAccount: <http://mu.semte.ch/vocabularies/account/>
   PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
   SELECT DISTINCT * WHERE {
@@ -58,8 +57,7 @@ ext:publicParty a odrl:PartyCollection ;
 ext:authenticatedParty a odrl:PartyCollection ;
   vcard:fn "Authenticated user" ;
   # no `ext:queryParameters` as they will not be used for this party
-  ext:definedBy """
-  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  ext:definedBy """PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
   PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
   SELECT DISTINCT ?session_group ?session_role WHERE {
     <SESSION_ID> ext:sessionGroup/mu:uuid ?session_group ;
@@ -70,8 +68,7 @@ ext:authenticatedParty a odrl:PartyCollection ;
 
 ext:mandaatGebruikerParty a odrl:PartyCollection ;
   vcard:fn "Mandaten users" ;
-  ext:definedBy """
-  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  ext:definedBy """PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
   PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
   SELECT DISTINCT ?session_group ?session_role WHERE {
     <SESSION_ID> ext:sessionGroup/mu:uuid ?session_group ;
@@ -84,8 +81,7 @@ ext:mandaatGebruikerParty a odrl:PartyCollection ;
 
 ext:vendorGebruikerParty a odrl:PartyCollection ;
   vcard:fn "Vendor users" ;
-  ext:definedBy """
-  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  ext:definedBy """PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
   PREFIX muAccount: <http://mu.semte.ch/vocabularies/account/>
   PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
   SELECT DISTINCT ?session_group ?session_role WHERE {
@@ -113,8 +109,7 @@ ext:vendorGebruikerParty a odrl:PartyCollection ;
 
 ext:policeCouncilParty a odrl:PartyCollection ;
   vcard:fn "Politieraad lezer" ;
-  ext:definedBy """
-  PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
+  ext:definedBy """PREFIX ext: <http://mu.semte.ch/vocabularies/ext/>
   PREFIX mu: <http://mu.semte.ch/vocabularies/core/>
   SELECT DISTINCT ?session_group ?session_role WHERE {
     <SESSION_ID> ext:sessionGroup ?original_session_group ;
