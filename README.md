@@ -1,5 +1,8 @@
 # Convert ODRL policies to authorisation rules
 
+> [!warning]
+> This service is archived and no longer maintained. Support for ODRL policies is added to sparql-parser itself as an [experimental feature](https://github.com/mu-semtech/sparql-parser/pull/12).
+
 This service supports converting authorisation rules expressed as [ODRL](https://www.w3.org/TR/odrl-model/) policies to corresponding rules for the [sparql-parser](https://github.com/mu-semtech/sparql-parser) service.
 
 This service is currently under development, this README will be extended along the way.
